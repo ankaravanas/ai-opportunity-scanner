@@ -38,6 +38,14 @@ export async function sendSlackLeadNotification(data: SlackLeadNotification): Pr
       minute: '2-digit'
     });
 
+    // Extract domain from URL
+    let domain = data.websiteUrl;
+    try {
+      domain = new URL(data.websiteUrl).hostname.replace('www.', '');
+    } catch {
+      // Keep original if parsing fails
+    }
+
     // Build opportunities list
     const oppList = data.opportunities
       .slice(0, 3)
@@ -49,34 +57,21 @@ export async function sendSlackLeadNotification(data: SlackLeadNotification): Pr
       channel: SLACK_CHANNEL_ID,
       username: 'AI Scanner Bot',
       icon_emoji: ':robot_face:',
-      text: `🎯 Νέο Lead από AI Opportunity Scanner!`,
+      text: `🎯 Νέο Lead: ${data.companyName} (${domain})`,
       blocks: [
         {
           type: 'header',
           text: {
             type: 'plain_text',
-            text: '🎯 Νέο Lead από AI Opportunity Scanner',
+            text: `🎯 ${data.companyName}`,
             emoji: true
           }
         },
         {
           type: 'section',
-          fields: [
-            {
-              type: 'mrkdwn',
-              text: `*🏢 Εταιρεία:*\n${data.companyName}`
-            },
-            {
-              type: 'mrkdwn',
-              text: `*🏷️ Κλάδος:*\n${data.industry}`
-            }
-          ]
-        },
-        {
-          type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `*🌐 Website:*\n<${data.websiteUrl}|${data.websiteUrl}>`
+            text: `<${data.websiteUrl}|${domain}> · ${data.industry}`
           }
         },
         {
