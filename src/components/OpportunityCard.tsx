@@ -89,7 +89,14 @@ export default function OpportunityCard({ opportunity, index }: OpportunityCardP
       {/* Annual Savings Box */}
       <div className="mt-6 p-4 bg-white border border-[#E5E5E5] rounded-xl">
         <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#E5E5E5]">
-          <span className="text-sm text-[#666666]">Ετήσια εξοικονόμηση</span>
+          <Tooltip content={`Υπολογισμός: ${opportunity.time_savings_hours_week} ώρες/εβδ × 48 εβδομάδες × €25/ώρα`}>
+            <span className="text-sm text-[#666666] flex items-center gap-1">
+              Ετήσια εξοικονόμηση
+              <svg className="w-3.5 h-3.5 text-[#999999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+          </Tooltip>
           <span className="text-2xl font-bold text-primary">{formatEuros(annualSavings)}</span>
         </div>
 
@@ -110,19 +117,6 @@ export default function OpportunityCard({ opportunity, index }: OpportunityCardP
         </div>
       </div>
 
-      {/* Impact Score */}
-      <div className="mt-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-[#666666]">Impact Score</span>
-          <span className="text-sm font-semibold text-[#1A1915]">{opportunity.impact_score}/10</span>
-        </div>
-        <div className="h-2 bg-[#E5E5E5] rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary rounded-full transition-all duration-500"
-            style={{ width: `${opportunity.impact_score * 10}%` }}
-          />
-        </div>
-      </div>
     </div>
   );
 }
