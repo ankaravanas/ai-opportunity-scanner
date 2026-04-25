@@ -1,12 +1,7 @@
 /**
  * ClickUp API service for lead capture
+ * Target: AI Labs workspace → Outbound Sales → 🔥 Leads
  */
-
-// Custom field IDs for Account Hub list
-const CLICKUP_FIELDS = {
-  website: 'a2c503df-2704-4819-92d8-80d6402e447d',    // 🌐 Website
-  email: '5b234a2d-29d0-4dc0-8270-55c068506971',       // 📥 Contact Email
-};
 
 export interface LeadData {
   companyName: string;
@@ -16,8 +11,8 @@ export interface LeadData {
 }
 
 /**
- * Silently capture lead in ClickUp with status "lead"
- * This runs in the background and doesn't affect the main flow
+ * Capture lead in ClickUp (🔥 Leads list)
+ * Runs in the background, doesn't affect main flow
  */
 export async function captureClickUpLead(data: LeadData): Promise<void> {
   const apiKey = process.env.CLICKUP_API_KEY;
@@ -32,29 +27,23 @@ export async function captureClickUpLead(data: LeadData): Promise<void> {
     const now = new Date().toLocaleString('el-GR', { timeZone: 'Europe/Athens' });
 
     const description = [
-      '🚀 Lead from AI Opportunity Scanner',
-      `📅 Ημερομηνία: ${now}`,
-      `🌐 Website: ${data.websiteUrl}`,
-      `🏢 Industry: ${data.industry}`,
-      data.emails?.length ? `📧 Emails: ${data.emails.join(', ')}` : '',
+      '🚀 **Lead from AI Opportunity Scanner**',
+      '',
+      `📅 **Ημερομηνία:** ${now}`,
+      `🌐 **Website:** ${data.websiteUrl}`,
+      `🏢 **Industry:** ${data.industry}`,
+      data.emails?.length ? `📧 **Emails:** ${data.emails.join(', ')}` : '',
+      '',
+      '---',
+      '_Αυτόματη καταχώρηση από scan.liberators.ai_',
     ]
       .filter(Boolean)
       .join('\n');
 
-    // Build custom fields array
-    const customFields: Array<{ id: string; value: string }> = [
-      { id: CLICKUP_FIELDS.website, value: data.websiteUrl },
-    ];
-
-    if (data.emails?.length) {
-      customFields.push({ id: CLICKUP_FIELDS.email, value: data.emails[0] });
-    }
-
     const taskData = {
       name: data.companyName,
       description,
-      status: 'lead',  // Explicitly set status to "lead"
-      custom_fields: customFields,
+      status: 'to do',  // Default open status for this list
     };
 
     const response = await fetch(
