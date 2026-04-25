@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
           phones: scrapeResult.phones,
           businessSummary: analysisResult.raw_summary,
           opportunities: opportunityTitles,
-        }).catch(() => ({ success: false }));
+        }).catch(() => ({ success: false, taskId: undefined }));
 
         // Send Slack notification
         await sendSlackLeadNotification({
