@@ -36,48 +36,81 @@ export default function LandingSection({ onSubmit, isLoading }: LandingSectionPr
   };
 
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-20 md:py-28">
       <div className="max-w-3xl mx-auto text-center px-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-text-main mb-4">
-          Ανακαλύψτε τις AI ευκαιρίες της εταιρείας σας
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-light rounded-full text-primary text-sm font-medium mb-6">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          AI-Powered Analysis
+        </div>
+
+        <h1 className="text-4xl md:text-5xl font-bold text-text-main mb-5 leading-tight">
+          Ανακαλύψτε τις AI ευκαιρίες<br />
+          <span className="text-primary">της εταιρείας σας</span>
         </h1>
-        <p className="text-lg text-text-muted mb-10">
-          Αναλύστε το website σας και λάβετε personalized προτάσεις αυτοματοποίησης
-          με εκτιμήσεις εξοικονόμησης χρόνου.
+        <p className="text-lg text-text-secondary mb-12 max-w-xl mx-auto leading-relaxed">
+          Αναλύστε το website σας και λάβετε personalized προτάσεις αυτοματοποίησης με εκτιμήσεις εξοικονόμησης.
         </p>
 
         <form onSubmit={handleSubmit} className="max-w-xl mx-auto">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1">
-              <input
-                type="text"
-                value={url}
-                onChange={(e) => {
-                  setUrl(e.target.value);
-                  if (error) setError('');
-                }}
-                placeholder="π.χ. example.com"
+          <div className="bg-bg-card rounded-2xl p-2 shadow-soft border border-border-light">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1 relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  value={url}
+                  onChange={(e) => {
+                    setUrl(e.target.value);
+                    if (error) setError('');
+                  }}
+                  placeholder="example.com"
+                  disabled={isLoading}
+                  className={`w-full pl-12 pr-4 py-4 text-base bg-transparent border-0 focus:outline-none focus:ring-0 placeholder:text-text-muted ${
+                    error ? 'text-red-500' : 'text-text-main'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                />
+              </div>
+              <button
+                type="submit"
                 disabled={isLoading}
-                className={`w-full px-4 py-3 text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors ${
-                  error ? 'border-red-500' : 'border-border-light'
-                } disabled:bg-gray-50 disabled:cursor-not-allowed`}
-              />
-              {error && (
-                <p className="mt-2 text-sm text-red-500 text-left">{error}</p>
-              )}
+                className="px-8 py-4 bg-primary text-white font-semibold rounded-xl hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap shadow-soft"
+              >
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Ανάλυση...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Ανάλυση
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
+                )}
+              </button>
             </div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-8 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-            >
-              {isLoading ? 'Ανάλυση...' : 'Ανάλυση'}
-            </button>
           </div>
+          {error && (
+            <p className="mt-3 text-sm text-red-500">{error}</p>
+          )}
         </form>
 
-        <p className="mt-6 text-sm text-text-muted">
-          Δωρεάν ανάλυση. Χωρίς δεσμεύσεις.
+        <p className="mt-8 text-sm text-text-muted flex items-center justify-center gap-2">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          Δωρεάν ανάλυση · Χωρίς δεσμεύσεις · Ασφαλής επεξεργασία
         </p>
       </div>
     </section>

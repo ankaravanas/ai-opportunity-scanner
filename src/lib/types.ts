@@ -45,3 +45,17 @@ export interface SendReportResponse {
   success: boolean;
   error?: string;
 }
+
+// Helper function to calculate annual savings
+export function calculateAnnualSavings(hoursPerWeek: number, hourlyRate: number = 25): number {
+  // 48 working weeks per year
+  return Math.round(hoursPerWeek * 48 * hourlyRate);
+}
+
+// Format currency in euros
+export function formatEuros(amount: number): string {
+  if (amount >= 1000) {
+    return `€${Math.round(amount / 1000)}K`;
+  }
+  return `€${amount}`;
+}

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const MCP_ENDPOINT = process.env.MCP_ENDPOINT || 'https://web-voice-automation.up.railway.app/mcp';
+import { sendEmailReport } from '@/lib/services/email';
 
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,40 +27,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call MCP tool to send report
-    const response = await fetch(MCP_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'tools/call',
-        params: {
-          name: 'send_report_to_email',
-          arguments: {
-            email: trimmedEmail,
-          },
-        },
-      }),
-    });
+    console.log(`[SendReport] Sending to: ${trimmedEmail}`);
 
-    if (!response.ok) {
-      throw new Error(`MCP call failed: ${response.status} ${response.statusText}`);
+    const result = await sendEmailReport(trimmedEmail);
+
+    if (result.success) {
+      console.log(`[SendReport] Sent successfully`);
+      return NextResponse.json({ success: true });
+    } else {
+      console.error(`[SendReport] Failed: ${result.error}`);
+      return NextResponse.json(
+        { success: false, error: result.error },
+        { status: 500 }
+      );
     }
-
-    const data = await response.json();
-
-    if (data.error) {
-      throw new Error(data.error.message || 'Failed to send report');
-    }
-
-    return NextResponse.json({
-      success: true,
-    });
   } catch (error) {
-    console.error('Send report error:', error);
+    console.error('[SendReport] Error:', error);
 
     const message = error instanceof Error ? error.message : 'An unexpected error occurred';
 

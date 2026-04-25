@@ -53,12 +53,12 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-bg-main">
       <Header />
 
       {error && (
         <div className="max-w-3xl mx-auto px-4 mt-6">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
             <p className="font-medium">Σφάλμα</p>
             <p className="text-sm mt-1">{error}</p>
             <button

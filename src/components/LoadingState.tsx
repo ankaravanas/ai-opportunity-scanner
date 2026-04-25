@@ -44,44 +44,57 @@ export default function LoadingState({ onCancel }: LoadingStateProps) {
   }, []);
 
   return (
-    <section className="py-16 md:py-24">
-      <div className="max-w-xl mx-auto text-center px-4">
-        <div className="mb-8">
-          {/* Progress bar */}
-          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+    <section className="py-20 md:py-28">
+      <div className="max-w-md mx-auto text-center px-4">
+        {/* Claude-style loading indicator */}
+        <div className="w-16 h-16 mx-auto mb-8 relative">
+          <div className="absolute inset-0 rounded-full border-4 border-border-light" />
+          <div
+            className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"
+            style={{ animationDuration: '1s' }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mb-6">
+          <div className="w-full h-1.5 bg-border-light rounded-full overflow-hidden">
             <div
               className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="mt-3 text-sm text-text-muted">{Math.round(progress)}%</p>
         </div>
 
         {/* Step indicators */}
-        <div className="flex justify-center gap-2 mb-6">
+        <div className="flex justify-center gap-2 mb-5">
           {LOADING_STEPS.map((_, index) => (
             <div
               key={index}
-              className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                index <= currentStep ? 'bg-primary' : 'bg-gray-200'
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index <= currentStep ? 'bg-primary scale-100' : 'bg-border-medium scale-75'
               }`}
             />
           ))}
         </div>
 
         {/* Current step text */}
-        <p className="text-lg text-text-main font-medium transition-opacity duration-300">
+        <p className="text-lg text-text-main font-semibold">
           {LOADING_STEPS[currentStep]}
         </p>
 
-        <p className="mt-4 text-sm text-text-muted">
-          Η ανάλυση διαρκεί περίπου 15-30 δευτερόλεπτα
+        <p className="mt-3 text-sm text-text-muted">
+          {Math.round(progress)}% · 15-30 δευτερόλεπτα
         </p>
 
         {onCancel && (
           <button
             onClick={onCancel}
-            className="mt-6 text-sm text-text-muted hover:text-text-main underline transition-colors"
+            className="mt-8 px-5 py-2.5 text-sm text-text-secondary hover:text-primary bg-bg-elevated hover:bg-primary-light rounded-xl border border-border-light transition-all"
           >
             Ακύρωση
           </button>

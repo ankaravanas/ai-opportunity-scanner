@@ -9,19 +9,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Brand colors
-        primary: '#007BFF',
-        'text-main': '#1a1a1a',
-        'text-muted': '#666666',
-        'border-light': '#E5E7EB',
+        // Claude-inspired brand colors
+        primary: '#D97757', // Claude terracotta/orange
+        'primary-hover': '#C4684A',
+        'primary-light': '#F5E6E0',
 
-        // Department colors - backgrounds
-        'sales-bg': '#E6F1FB',
-        'operations-bg': '#EEEDFE',
-        'hr-bg': '#E1F5EE',
-        'customer-service-bg': '#EAF3DE',
-        'finance-bg': '#FAEEDA',
-        'marketing-bg': '#FAECE7',
+        // Backgrounds - warm cream tones
+        'bg-main': '#FAF9F7',
+        'bg-card': '#FFFFFF',
+        'bg-elevated': '#F5F4F0',
+        'bg-accent': '#FDF8F5',
+
+        // Text - warm tones
+        'text-main': '#1A1915',
+        'text-secondary': '#5D5D5A',
+        'text-muted': '#8B8B88',
+
+        // Borders - warm gray
+        'border-light': '#E8E6E1',
+        'border-medium': '#D4D2CD',
+
+        // Department colors - warmer palette
+        'sales-bg': '#E8F0F5',
+        'operations-bg': '#EEEDF8',
+        'hr-bg': '#E5F2ED',
+        'customer-service-bg': '#ECF2E5',
+        'finance-bg': '#F8F0E3',
+        'marketing-bg': '#F8EBE6',
 
         // Department colors - text
         'sales-text': '#0C447C',
@@ -33,6 +47,16 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'soft': '0 2px 8px rgba(26, 25, 21, 0.06)',
+        'medium': '0 4px 16px rgba(26, 25, 21, 0.08)',
+        'elevated': '0 8px 32px rgba(26, 25, 21, 0.12)',
+      },
+      borderRadius: {
+        'xl': '1rem',
+        '2xl': '1.25rem',
+        '3xl': '1.5rem',
       },
     },
   },
