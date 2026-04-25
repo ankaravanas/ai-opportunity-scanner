@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface LandingSectionProps {
   onSubmit: (url: string) => void;
@@ -36,14 +37,18 @@ export default function LandingSection({ onSubmit, isLoading }: LandingSectionPr
   };
 
   return (
-    <section className="py-20 md:py-28">
+    <section className="py-16 md:py-24">
       <div className="max-w-3xl mx-auto text-center px-4">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-light rounded-full text-primary text-sm font-medium mb-6">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          AI-Powered Analysis
+        {/* Logo */}
+        <div className="mb-10">
+          <Image
+            src="/logo.png"
+            alt="Liberators AI"
+            width={140}
+            height={35}
+            priority
+            className="h-8 w-auto mx-auto opacity-90"
+          />
         </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-text-main mb-5 leading-tight">

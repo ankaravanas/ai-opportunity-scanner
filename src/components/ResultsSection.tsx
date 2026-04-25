@@ -5,7 +5,6 @@ import { AnalysisResult } from '@/lib/types';
 import OpportunityCard from './OpportunityCard';
 import OpportunityMatrix from './OpportunityMatrix';
 import EmailCapture from './EmailCapture';
-import CTASection from './CTASection';
 
 interface ResultsSectionProps {
   result: AnalysisResult;
@@ -101,9 +100,6 @@ export default function ResultsSection({
         <div className="mb-14">
           <EmailCapture onSubmit={onSendReport} isSubmitted={isEmailSent} />
         </div>
-
-        {/* CTA Section */}
-        <CTASection />
       </div>
     </section>
   );

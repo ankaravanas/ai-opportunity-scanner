@@ -1,48 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
-const LOADING_STEPS = [
-  'Σύνδεση με το website',
-  'Ανάλυση περιεχομένου',
-  'Εντοπισμός ευκαιριών',
-  'Υπολογισμός εκτιμήσεων',
-  'Ετοιμασία αποτελεσμάτων',
-];
+interface LoadingStep {
+  label: string;
+  status: 'pending' | 'in_progress' | 'complete';
+}
 
 interface LoadingStateProps {
+  steps: LoadingStep[];
   onCancel?: () => void;
 }
 
-export default function LoadingState({ onCancel }: LoadingStateProps) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    // Progress: reaches ~90% in about 20 seconds
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev;
-        const increment = prev < 40 ? 2.5 : prev < 70 ? 1.5 : 0.5;
-        return Math.min(90, prev + increment);
-      });
-    }, 500);
-
-    // Steps: change every 4 seconds
-    const stepInterval = setInterval(() => {
-      setCurrentStep((prev) => (prev < LOADING_STEPS.length - 1 ? prev + 1 : prev));
-    }, 4000);
-
-    return () => {
-      clearInterval(progressInterval);
-      clearInterval(stepInterval);
-    };
-  }, []);
+export default function LoadingState({ steps, onCancel }: LoadingStateProps) {
+  // Calculate progress based on completed steps
+  const completedCount = steps.filter(s => s.status === 'complete').length;
+  const inProgressCount = steps.filter(s => s.status === 'in_progress').length;
+  const progress = Math.round(((completedCount + inProgressCount * 0.5) / steps.length) * 100);
 
   return (
     <section className="py-20 md:py-28">
       <div className="max-w-md mx-auto text-center px-4">
-        {/* Claude-style loading indicator */}
+        {/* Loading indicator */}
         <div className="w-16 h-16 mx-auto mb-8 relative">
           <div className="absolute inset-0 rounded-full border-4 border-border-light" />
           <div
@@ -68,39 +45,39 @@ export default function LoadingState({ onCancel }: LoadingStateProps) {
 
         {/* Steps list */}
         <div className="text-left mb-6 space-y-2">
-          {LOADING_STEPS.map((step, index) => (
+          {steps.map((step, index) => (
             <div
               key={index}
               className={`flex items-center gap-3 transition-all duration-300 ${
-                index < currentStep
+                step.status === 'complete'
                   ? 'text-primary'
-                  : index === currentStep
+                  : step.status === 'in_progress'
                   ? 'text-text-main'
                   : 'text-text-muted'
               }`}
             >
               <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                index < currentStep
+                step.status === 'complete'
                   ? 'bg-primary'
-                  : index === currentStep
+                  : step.status === 'in_progress'
                   ? 'bg-primary-light border-2 border-primary'
                   : 'bg-border-light'
               }`}>
-                {index < currentStep && (
+                {step.status === 'complete' && (
                   <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 )}
               </div>
-              <span className={`text-sm ${index === currentStep ? 'font-medium' : ''}`}>
-                {step}
+              <span className={`text-sm ${step.status === 'in_progress' ? 'font-medium' : ''}`}>
+                {step.label}
               </span>
             </div>
           ))}
         </div>
 
         <p className="text-sm text-text-muted">
-          {Math.round(progress)}%
+          {progress}%
         </p>
 
         {onCancel && (

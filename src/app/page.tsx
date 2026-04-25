@@ -1,32 +1,70 @@
 'use client';
 
-import { useState } from 'react';
-import Header from '@/components/Header';
+import { useState, useRef } from 'react';
 import LandingSection from '@/components/LandingSection';
 import LoadingState from '@/components/LoadingState';
 import ResultsSection from '@/components/ResultsSection';
-import { analyzeWebsite, sendReport } from '@/lib/api';
+import { analyzeWebsiteStream, sendReport } from '@/lib/api';
 import { AnalysisResult, AppState } from '@/lib/types';
+
+interface LoadingStep {
+  label: string;
+  status: 'pending' | 'in_progress' | 'complete';
+}
+
+const INITIAL_STEPS: LoadingStep[] = [
+  { label: 'Σύνδεση με το website', status: 'pending' },
+  { label: 'Ανάλυση περιεχομένου με AI', status: 'pending' },
+  { label: 'Αποθήκευση στοιχείων', status: 'pending' },
+];
 
 export default function Home() {
   const [appState, setAppState] = useState<AppState>('idle');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isEmailSent, setIsEmailSent] = useState(false);
+  const [loadingSteps, setLoadingSteps] = useState<LoadingStep[]>(INITIAL_STEPS);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleAnalyze = async (url: string) => {
     setAppState('loading');
     setError(null);
+    setLoadingSteps(INITIAL_STEPS);
 
-    const response = await analyzeWebsite(url);
+    abortControllerRef.current = new AbortController();
 
-    if (response.success && response.data) {
-      setAnalysisResult(response.data);
-      setAppState('results');
-    } else {
-      setError(response.error || 'Παρουσιάστηκε σφάλμα κατά την ανάλυση');
-      setAppState('idle');
-    }
+    analyzeWebsiteStream(url, {
+      onProgress: (step, status, message) => {
+        console.log(`[Progress] Step ${step}: ${status} - ${message}`);
+
+        setLoadingSteps(prev => {
+          const newSteps = [...prev];
+          // Map backend steps to frontend steps
+          // Backend: 1=scrape, 2=analyze, 3=save lead, 4=done
+          const stepIndex = step - 1;
+
+          if (stepIndex >= 0 && stepIndex < newSteps.length) {
+            if (status === 'start') {
+              newSteps[stepIndex] = { ...newSteps[stepIndex], status: 'in_progress' };
+            } else if (status === 'complete') {
+              newSteps[stepIndex] = { ...newSteps[stepIndex], status: 'complete' };
+            }
+          }
+
+          return newSteps;
+        });
+      },
+      onComplete: (result) => {
+        // Mark all steps complete
+        setLoadingSteps(prev => prev.map(s => ({ ...s, status: 'complete' as const })));
+        setAnalysisResult(result);
+        setAppState('results');
+      },
+      onError: (errorMessage) => {
+        setError(errorMessage || 'Παρουσιάστηκε σφάλμα κατά την ανάλυση');
+        setAppState('idle');
+      },
+    });
   };
 
   const handleSendReport = async (email: string) => {
@@ -45,8 +83,12 @@ export default function Home() {
   };
 
   const handleCancel = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     setAppState('idle');
     setError(null);
+    setLoadingSteps(INITIAL_STEPS);
   };
 
   const handleReset = () => {
@@ -54,12 +96,11 @@ export default function Home() {
     setAnalysisResult(null);
     setError(null);
     setIsEmailSent(false);
+    setLoadingSteps(INITIAL_STEPS);
   };
 
   return (
     <main className="min-h-screen bg-bg-main">
-      <Header />
-
       {error && (
         <div className="max-w-3xl mx-auto px-4 mt-6">
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
@@ -80,7 +121,7 @@ export default function Home() {
       )}
 
       {appState === 'loading' && (
-        <LoadingState onCancel={handleCancel} />
+        <LoadingState steps={loadingSteps} onCancel={handleCancel} />
       )}
 
       {(appState === 'results' || appState === 'emailSent') && analysisResult && (

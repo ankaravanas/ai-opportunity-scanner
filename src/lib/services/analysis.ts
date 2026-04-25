@@ -32,12 +32,55 @@ export interface AnalysisData {
 }
 
 /**
- * Extract company name from page title
+ * Extract company name using GPT-4o-mini
+ * Intelligently identifies the actual brand/company name, not taglines
  */
-function extractCompanyName(title: string): string {
-  if (!title) return 'Unknown Company';
-  // Take first part before common separators
-  const parts = title.split(/[-|–—·]/);
+async function extractCompanyName(title: string, content: string): Promise<string> {
+  if (!title && !content) return 'Unknown Company';
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'user',
+          content: `Extract the ACTUAL COMPANY/BRAND NAME from this website.
+
+Page Title: "${title}"
+Content snippet: "${content.slice(0, 500)}"
+
+RULES:
+- Return ONLY the company/brand name, nothing else
+- Do NOT return taglines or descriptions (e.g., "Web Design Agency" is NOT a company name)
+- Look for the actual brand name (e.g., "WeDoHype", "Liberators AI", "Apple", "Nike")
+- If the title has format "Description | BrandName", extract "BrandName"
+- If the title has format "BrandName - Description", extract "BrandName"
+- Prefer proper nouns and capitalized brand names
+- If truly uncertain, return the most likely brand name
+
+Company name:`,
+        },
+      ],
+      temperature: 0.1,
+      max_tokens: 50,
+    });
+
+    const extracted = response.choices[0]?.message?.content?.trim();
+    if (extracted && extracted.length > 0 && extracted.length < 100) {
+      return extracted;
+    }
+  } catch {
+    // Fallback to simple extraction
+  }
+
+  // Simple fallback: try to find brand after separator
+  const parts = title.split(/[|–—·]/);
+  if (parts.length > 1) {
+    const lastPart = parts[parts.length - 1].trim();
+    if (lastPart.length > 2 && lastPart.length < 50) {
+      return lastPart;
+    }
+  }
   return parts[0].trim() || 'Unknown Company';
 }
 
@@ -95,46 +138,67 @@ async function analyzeWithGPT(
   businessInfo: BusinessInfo,
   language: string
 ): Promise<AnalysisData> {
-  // Force Greek for Greek content, otherwise match detected language
-  const responseLanguage = language.toLowerCase().includes('greek') ? 'Greek' : language;
+  const prompt = `You are an AI automation expert. Propose 3 REAL workflow automations for THIS SPECIFIC business.
 
-  const prompt = `You are an expert AI automation consultant. Analyze this business and identify exactly 3 specific AI automation opportunities.
+LANGUAGE: Greek text, English for tech terms (AI, GPT, API, workflow)
 
-CRITICAL LANGUAGE REQUIREMENT:
-- ALL text content MUST be in GREEK (Ελληνικά)
-- Keep ONLY technical AI/tech terms in English: AI, chatbot, CRM, workflow, automation, lead scoring, NLP, API
-- Example title: "Αυτοματοποίηση Εξυπηρέτησης Πελατών με AI Chatbot"
-- Example description: "Υλοποίηση ενός AI chatbot που θα απαντά αυτόματα σε συχνές ερωτήσεις πελατών..."
+BUSINESS:
+Company: ${businessInfo.companyName}
+Industry: ${businessInfo.industry}
+Content:
+${content.slice(0, 3000)}
 
-BUSINESS INFORMATION:
-- Company: ${businessInfo.companyName}
-- Industry: ${businessInfo.industry}
-- Services: ${businessInfo.services.join(', ') || 'Not specified'}
-- Technologies: ${businessInfo.technologies.join(', ') || 'Not specified'}
+CRITICAL RULE - STAY WITHIN THEIR BUSINESS:
+The automations MUST be directly related to the SERVICES/PRODUCTS this business actually provides.
+DO NOT suggest automations for services they don't offer!
 
-WEBSITE CONTENT:
-${content.slice(0, 2500)}
+Example: If a company builds WEBSITES:
+✅ AI for generating website content (they build websites)
+✅ AI for design-to-code conversion (they build websites)
+✅ AI for web project proposals (they sell websites)
+❌ Social media automation (they don't do social media)
+❌ Email marketing automation (they don't do email marketing)
+❌ Customer support chatbot (irrelevant to website building)
 
-REQUIREMENTS:
-- 3 specific AI automation opportunities
-- Practical, implementable within 6-12 months
-- Industry-specific
-- NO pricing/costs mentioned
+FIRST: Read the content and identify EXACTLY what services/products they offer.
+THEN: Propose automations ONLY for those specific services.
 
-Return ONLY valid JSON:
+EXAMPLES OF CORRECT AUTOMATIONS:
+
+WEB DEVELOPMENT AGENCY (builds websites):
+1. "AI Website Content Generator" - Δημιουργία κειμένων για τα websites που φτιάχνουν: headlines, about pages, service descriptions. Input: brief πελάτη. Output: έτοιμο copy.
+2. "Design-to-Code AI Workflow" - Μετατροπή Figma mockups σε React/HTML code αυτόματα. Μείωση χρόνου front-end development κατά 50%.
+3. "AI Web Project Estimator" - Αυτόματη εκτίμηση ωρών και κόστους για web projects. Input: requirements. Output: αναλυτικό quote με breakdown.
+
+E-COMMERCE (sells products online):
+1. "AI Product Description Writer" - Bulk generation περιγραφών για εκατοντάδες προϊόντα
+2. "Smart Inventory Forecasting" - AI προβλέπει πότε θα τελειώσει stock και τι να παραγγείλεις
+3. "Order Processing Automation" - Αυτόματη επεξεργασία παραγγελιών, invoices, shipping labels
+
+RESTAURANT (serves food):
+1. "AI Menu Engineering" - Ανάλυση πωλήσεων, βελτιστοποίηση menu για profit
+2. "Review Response Bot" - AI απαντάει σε Google/TripAdvisor reviews
+3. "Reservation Chatbot" - WhatsApp/web bot για κρατήσεις τραπεζιών
+
+CONSULTING FIRM (provides advice):
+1. "AI Research Assistant" - Αυτόματη έρευνα αγοράς πριν από client meetings
+2. "Meeting Notes Automation" - AI transcribes calls και γράφει action items
+3. "Proposal Generator" - AI γράφει proposals από templates + client data
+
+RETURN ONLY VALID JSON:
 {
     "opportunities": [
         {
-            "title": "Τίτλος στα ελληνικά με AI/tech terms στα αγγλικά",
-            "description": "Αναλυτική περιγραφή 3-5 προτάσεων στα ελληνικά. Τι θα αυτοματοποιηθεί, πώς λειτουργεί, ποια τα οφέλη.",
-            "impact": "Μετρήσιμο όφελος, π.χ. '30% μείωση χρόνου απόκρισης', '15 ώρες εξοικονόμηση/εβδ'",
-            "implementation": "Προσέγγιση υλοποίησης",
-            "roi_estimate": "Χρονοδιάγραμμα ROI",
+            "title": "Specific Tool Name (not vague)",
+            "description": "What it does step-by-step. Input → Process → Output. (3-5 sentences in Greek)",
+            "impact": "Measurable: 'X hours/week saved', 'Y% faster delivery'",
+            "implementation": "Tech stack: GPT-4, n8n, Make, custom",
+            "roi_estimate": "Implementation timeline",
             "priority": "High/Medium/Low"
         }
     ],
-    "overall_assessment": "Αξιολόγηση ετοιμότητας για AI automation",
-    "recommended_next_steps": "Συγκεκριμένα επόμενα βήματα"
+    "overall_assessment": "Brief assessment",
+    "recommended_next_steps": "Next steps"
 }`;
 
   const response = await openai.chat.completions.create({
@@ -272,14 +336,15 @@ export async function analyzeWebsite(
   content: string,
   title: string
 ): Promise<AnalysisResult> {
-  // Extract basic info
-  const companyName = extractCompanyName(title);
-
-  // Detect language and industry in parallel
-  const [language, industry] = await Promise.all([
+  // Extract company name, language, and industry in parallel
+  const [companyName, language, industryRaw] = await Promise.all([
+    extractCompanyName(title, content),
     detectLanguage(content),
-    detectIndustry(content, companyName),
+    detectIndustry(content, title),
   ]);
+
+  // Detect industry with actual company name for better accuracy
+  const industry = industryRaw;
 
   const businessInfo: BusinessInfo = {
     companyName,
