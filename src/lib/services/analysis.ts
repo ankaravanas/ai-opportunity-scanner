@@ -185,13 +185,19 @@ CONSULTING FIRM (provides advice):
 2. "Meeting Notes Automation" - AI transcribes calls και γράφει action items
 3. "Proposal Generator" - AI γράφει proposals από templates + client data
 
+IMPACT GUIDELINES:
+- Each automation should save 10-25 hours/week (be generous but realistic)
+- Think about: manual research, data entry, communication, follow-ups, reporting
+- A good AI automation easily saves 15-20 hours/week of repetitive work
+- Always include specific hour estimates like "15-20 hours/week" or "60% time reduction"
+
 RETURN ONLY VALID JSON:
 {
     "opportunities": [
         {
             "title": "Specific Tool Name (not vague)",
             "description": "What it does step-by-step. Input → Process → Output. (3-5 sentences in Greek)",
-            "impact": "Measurable: 'X hours/week saved', 'Y% faster delivery'",
+            "impact": "MUST include hours: 'Saves 15-20 hours/week on X' or 'Reduces Y time by 50%'",
             "implementation": "Tech stack: GPT-4, n8n, Make, custom",
             "roi_estimate": "Implementation timeline",
             "priority": "High/Medium/Low"
@@ -306,26 +312,39 @@ function guessDepartment(opp: RawOpportunity): Department {
 
 /**
  * Estimate hours saved per week from impact text
+ * Realistic range: 5-25 hours/week per automation
  */
 function estimateHoursSaved(impact: string): number {
-  // Look for percentage or number patterns
+  const impactLower = impact.toLowerCase();
+
+  // Look for explicit hour mentions
+  const hourMatch = impact.match(/(\d+)\s*(?:hour|ώρ)/i);
+  if (hourMatch) {
+    const hours = parseInt(hourMatch[1]);
+    // Ensure minimum realistic value
+    return Math.max(hours, 8);
+  }
+
+  // Look for percentage patterns (e.g., "50% faster", "30% reduction")
   const percentMatch = impact.match(/(\d+)%/);
   if (percentMatch) {
     const percent = parseInt(percentMatch[1]);
-    // Assume 40 hour work week, calculate savings
-    return Math.round((percent / 100) * 40 * 0.3); // 30% of percentage as hours
+    // Higher percentages = more hours saved
+    // 50% efficiency = ~15-20 hours saved
+    return Math.min(25, Math.max(10, Math.round(percent * 0.4)));
   }
 
-  const hourMatch = impact.match(/(\d+)\s*hour/i);
-  if (hourMatch) {
-    return parseInt(hourMatch[1]);
-  }
+  // Keyword-based estimation with higher values
+  if (impactLower.includes('24/7') || impactLower.includes('full automation')) return 25;
+  if (impactLower.includes('αυτόματ') || impactLower.includes('automat')) return 20;
+  if (impactLower.includes('significant') || impactLower.includes('σημαντικ')) return 18;
+  if (impactLower.includes('major') || impactLower.includes('μεγάλ')) return 16;
+  if (impactLower.includes('faster') || impactLower.includes('ταχύτερ')) return 15;
+  if (impactLower.includes('reduce') || impactLower.includes('μείωση')) return 14;
+  if (impactLower.includes('streamline') || impactLower.includes('βελτιστοποί')) return 12;
 
-  // Default based on keywords
-  if (impact.toLowerCase().includes('significant') || impact.toLowerCase().includes('major')) return 15;
-  if (impact.toLowerCase().includes('immediate') || impact.toLowerCase().includes('24/7')) return 20;
-
-  return 10;
+  // Default: realistic base value
+  return 12;
 }
 
 /**

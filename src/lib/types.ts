@@ -55,7 +55,12 @@ export function calculateAnnualSavings(hoursPerWeek: number, hourlyRate: number 
 // Format currency in euros
 export function formatEuros(amount: number): string {
   if (amount >= 1000) {
-    return `€${Math.round(amount / 1000)}K`;
+    const k = amount / 1000;
+    // Show one decimal if not a whole number
+    if (k % 1 === 0) {
+      return `€${k}K`;
+    }
+    return `€${k.toFixed(1)}K`;
   }
   return `€${amount}`;
 }
