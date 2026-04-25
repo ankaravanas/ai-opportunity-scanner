@@ -19,8 +19,12 @@ export interface SlackLeadNotification {
 export async function sendSlackLeadNotification(data: SlackLeadNotification): Promise<void> {
   const token = SLACK_BOT_TOKEN;
 
+  console.log('[Slack] Attempting to send notification for:', data.companyName);
+  console.log('[Slack] Token exists:', !!token);
+  console.log('[Slack] Channel:', SLACK_CHANNEL_ID);
+
   if (!token) {
-    console.log('[Slack] Not configured, skipping notification');
+    console.error('[Slack] SLACK_BOT_TOKEN not configured, skipping notification');
     return;
   }
 
@@ -117,15 +121,16 @@ export async function sendSlackLeadNotification(data: SlackLeadNotification): Pr
       body: JSON.stringify(message)
     });
 
-    if (response.ok) {
-      const result = await response.json();
-      if (result.ok) {
-        console.log(`[Slack] Notification sent for: ${data.companyName}`);
-      } else {
-        console.error(`[Slack] API error: ${result.error}`);
-      }
+    const result = await response.json();
+    console.log('[Slack] API Response:', JSON.stringify(result, null, 2));
+
+    if (result.ok) {
+      console.log(`[Slack] ✅ Notification sent for: ${data.companyName}`);
     } else {
-      console.error(`[Slack] HTTP error: ${response.status}`);
+      console.error(`[Slack] ❌ API error: ${result.error}`);
+      if (result.response_metadata?.messages) {
+        console.error('[Slack] Details:', result.response_metadata.messages);
+      }
     }
   } catch (error) {
     console.error('[Slack] Error:', error);

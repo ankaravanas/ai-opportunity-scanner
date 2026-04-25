@@ -74,7 +74,8 @@ AI Opportunity Scanner is a lead generation web app for Liberators AI. Users sub
 - Auto-tags: Source = AI Opportunity Scanner
 
 ### Slack (Notifications)
-- Channel: C0AV6PT92AJ
+- Workspace: AI Labs (ai-labs-liberators.slack.com)
+- Channel: #leads (C0AV6PT92AJ)
 - Triggers: On every new lead submission
 - Includes: Company name, URL, industry, opportunities, ClickUp link
 
@@ -145,9 +146,15 @@ SLACK_CHANNEL_ID=...
 - Business-specific automation suggestions (not generic)
 
 ### Integrations Added
-- Slack notifications for new leads
-- ClickUp source attribution
+- Slack notifications for new leads (channel: #wedohype-prospects)
+- ClickUp source attribution (AI Opportunity Scanner)
 - Rich lead descriptions with business summary
+
+### Slack Fix (April 2026)
+- Fixed by using correct token for AI Labs workspace (was using WEDOHYPE token)
+- Channel: #leads (C0AV6PT92AJ) in AI Labs workspace
+- Added bot to #leads channel
+- Added detailed logging for debugging
 
 ---
 

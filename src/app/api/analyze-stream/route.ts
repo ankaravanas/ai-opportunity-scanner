@@ -89,7 +89,9 @@ export async function POST(request: NextRequest) {
           industry: analysisResult.industry,
           opportunities: opportunityTitles,
           clickupTaskId: clickupResult?.taskId,
-        }).catch(() => {});
+        }).catch((err) => {
+          console.error('[Slack] Notification failed:', err);
+        });
 
         send({ step: 3, status: 'complete', message: 'Lead saved' });
 
