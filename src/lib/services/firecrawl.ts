@@ -58,8 +58,8 @@ export async function scrapeWebsite(url: string): Promise<FirecrawlResult> {
 
     // Extract emails from content
     const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}\b/g;
-    const matchedEmails = markdown.match(emailPattern) || [];
-    const emails = Array.from(new Set(matchedEmails));
+    const matchedEmails: string[] = markdown.match(emailPattern) || [];
+    const emails: string[] = Array.from(new Set(matchedEmails));
 
     return {
       success: true,
