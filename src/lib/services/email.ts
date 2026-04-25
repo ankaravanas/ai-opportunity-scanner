@@ -123,8 +123,8 @@ export function generateHtmlReport(result: AnalysisResult): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Opportunity Report - ${company}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #FAF9F7; font-family: Arial, sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FAF9F7;">
+<body style="margin: 0; padding: 0; background-color: #FAFAFA; font-family: Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FAFAFA;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
 
