@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 
 const LOADING_STEPS = [
-  { text: 'Σύνδεση με το website...', icon: '🔗' },
-  { text: 'Ανάλυση περιεχομένου...', icon: '📄' },
-  { text: 'Εντοπισμός ευκαιριών AI...', icon: '🤖' },
-  { text: 'Υπολογισμός εξοικονομήσεων...', icon: '💰' },
-  { text: 'Ετοιμασία αποτελεσμάτων...', icon: '✨' },
+  'Σύνδεση με το website',
+  'Ανάλυση περιεχομένου',
+  'Εντοπισμός ευκαιριών',
+  'Υπολογισμός εκτιμήσεων',
+  'Ετοιμασία αποτελεσμάτων',
 ];
 
 interface LoadingStateProps {
@@ -19,22 +19,18 @@ export default function LoadingState({ onCancel }: LoadingStateProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Progress animation - smooth increment
+    // Progress: reaches ~90% in about 20 seconds
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 92) return prev;
-        // Variable speed: fast start, slow middle, pause near end
-        const increment = prev < 30 ? 3 : prev < 60 ? 2 : prev < 85 ? 1 : 0.3;
-        return Math.min(92, prev + increment);
+        if (prev >= 90) return prev;
+        const increment = prev < 40 ? 2.5 : prev < 70 ? 1.5 : 0.5;
+        return Math.min(90, prev + increment);
       });
-    }, 400);
+    }, 500);
 
-    // Step animation - change every ~4 seconds
+    // Steps: change every 4 seconds
     const stepInterval = setInterval(() => {
-      setCurrentStep((prev) => {
-        if (prev >= LOADING_STEPS.length - 1) return prev;
-        return prev + 1;
-      });
+      setCurrentStep((prev) => (prev < LOADING_STEPS.length - 1 ? prev + 1 : prev));
     }, 4000);
 
     return () => {
@@ -70,37 +66,41 @@ export default function LoadingState({ onCancel }: LoadingStateProps) {
           </div>
         </div>
 
-        {/* Step indicators */}
-        <div className="flex justify-center gap-3 mb-6">
+        {/* Steps list */}
+        <div className="text-left mb-6 space-y-2">
           {LOADING_STEPS.map((step, index) => (
             <div
               key={index}
-              className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-500 ${
+              className={`flex items-center gap-3 transition-all duration-300 ${
                 index < currentStep
-                  ? 'bg-primary text-white scale-100'
+                  ? 'text-primary'
                   : index === currentStep
-                  ? 'bg-primary-light text-primary scale-110 animate-pulse'
-                  : 'bg-border-light text-text-muted scale-90'
+                  ? 'text-text-main'
+                  : 'text-text-muted'
               }`}
             >
-              {index < currentStep ? (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              ) : (
-                <span className="text-sm">{step.icon}</span>
-              )}
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                index < currentStep
+                  ? 'bg-primary'
+                  : index === currentStep
+                  ? 'bg-primary-light border-2 border-primary'
+                  : 'bg-border-light'
+              }`}>
+                {index < currentStep && (
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
+              <span className={`text-sm ${index === currentStep ? 'font-medium' : ''}`}>
+                {step}
+              </span>
             </div>
           ))}
         </div>
 
-        {/* Current step text */}
-        <p className="text-lg text-text-main font-semibold">
-          {LOADING_STEPS[currentStep].text}
-        </p>
-
-        <p className="mt-3 text-sm text-text-muted">
-          Περίπου 15-30 δευτερόλεπτα
+        <p className="text-sm text-text-muted">
+          {Math.round(progress)}%
         </p>
 
         {onCancel && (

@@ -20,83 +20,99 @@ let cachedReport: {
 /**
  * Calculate annual savings
  */
-function calcAnnualSavings(hoursPerWeek: number): string {
-  const annual = hoursPerWeek * 48 * 25;
-  if (annual >= 1000) {
-    return `€${Math.round(annual / 1000)}K`;
-  }
-  return `€${annual}`;
+function calcAnnualSavings(hoursPerWeek: number): number {
+  return hoursPerWeek * 48 * 25;
 }
 
 /**
- * Get effort badge color
+ * Format currency
  */
-function getEffortStyle(effort: string): { bg: string; label: string } {
+function formatCurrency(amount: number): string {
+  if (amount >= 1000) {
+    return `${Math.round(amount / 1000).toLocaleString('el-GR')}K`;
+  }
+  return amount.toLocaleString('el-GR');
+}
+
+/**
+ * Get effort label
+ */
+function getEffortLabel(effort: string): string {
   switch (effort) {
-    case 'low':
-      return { bg: '#10B981', label: 'Quick Win' };
-    case 'medium':
-      return { bg: '#F59E0B', label: 'Μέτρια Προσπάθεια' };
-    default:
-      return { bg: '#EF4444', label: 'Στρατηγικό' };
+    case 'low': return 'Χαμηλή';
+    case 'medium': return 'Μέτρια';
+    default: return 'Υψηλή';
   }
 }
 
 /**
- * Generate beautiful HTML report from analysis result
+ * Generate HTML email report - editorial/refined aesthetic
+ * Table-based layout for email client compatibility
  */
 export function generateHtmlReport(result: AnalysisResult): string {
   const { company, industry, opportunities } = result;
   const now = new Date();
   const dateStr = now.toLocaleDateString('el-GR', {
-    year: 'numeric',
-    month: 'long',
     day: 'numeric',
+    month: 'long',
+    year: 'numeric',
   });
 
-  // Calculate total potential savings
   const totalHours = opportunities.reduce((sum, opp) => sum + opp.time_savings_hours_week, 0);
   const totalSavings = calcAnnualSavings(totalHours);
 
   const opportunitiesHtml = opportunities
     .map((opp, i) => {
-      const effortStyle = getEffortStyle(opp.effort);
       const annualSavings = calcAnnualSavings(opp.time_savings_hours_week);
 
       return `
-      <div style="background: #FFFFFF; border-radius: 16px; padding: 24px; margin: 20px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
-        <!-- Header with number and effort badge -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="background: linear-gradient(135deg, #D97757 0%, #C4614B 100%); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">${i + 1}</div>
-            <span style="background: #F3F4F6; color: #6B7280; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">${opp.department}</span>
-          </div>
-          <span style="background: ${effortStyle.bg}; color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;">${effortStyle.label}</span>
-        </div>
+        <!-- Opportunity ${i + 1} -->
+        <tr>
+          <td style="padding: 0 0 24px 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border: 1px solid #E5E5E5; border-radius: 4px;">
+              <tr>
+                <td style="padding: 24px;">
+                  <!-- Header row -->
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td>
+                        <span style="display: inline-block; background: #1A1915; color: #FFFFFF; font-family: Georgia, 'Times New Roman', serif; font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 2px; margin-right: 8px;">${i + 1}</span>
+                        <span style="font-family: Arial, sans-serif; font-size: 11px; color: #666666; text-transform: uppercase; letter-spacing: 1px;">${opp.department}</span>
+                      </td>
+                      <td style="text-align: right;">
+                        <span style="font-family: Arial, sans-serif; font-size: 11px; color: #999999;">Προσπάθεια: ${getEffortLabel(opp.effort)}</span>
+                      </td>
+                    </tr>
+                  </table>
 
-        <!-- Title -->
-        <h3 style="color: #1A1915; margin: 0 0 12px 0; font-size: 18px; font-weight: 700; line-height: 1.4;">${opp.title}</h3>
+                  <!-- Title -->
+                  <h3 style="font-family: Georgia, 'Times New Roman', serif; font-size: 18px; font-weight: normal; color: #1A1915; margin: 16px 0 12px 0; line-height: 1.4;">${opp.title}</h3>
 
-        <!-- Description -->
-        <p style="color: #4B5563; margin: 0 0 20px 0; font-size: 14px; line-height: 1.7;">${opp.description}</p>
+                  <!-- Description -->
+                  <p style="font-family: Arial, sans-serif; font-size: 14px; color: #555555; line-height: 1.7; margin: 0 0 20px 0;">${opp.description}</p>
 
-        <!-- Metrics Grid -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-          <div style="background: #FEF7F5; border-radius: 12px; padding: 16px; text-align: center;">
-            <div style="color: #D97757; font-size: 22px; font-weight: 700;">${annualSavings}</div>
-            <div style="color: #9CA3AF; font-size: 11px; margin-top: 4px;">Ετήσια Εξοικονόμηση</div>
-          </div>
-          <div style="background: #F0FDF4; border-radius: 12px; padding: 16px; text-align: center;">
-            <div style="color: #10B981; font-size: 22px; font-weight: 700;">${opp.time_savings_hours_week}h</div>
-            <div style="color: #9CA3AF; font-size: 11px; margin-top: 4px;">Ώρες/Εβδομάδα</div>
-          </div>
-          <div style="background: #EFF6FF; border-radius: 12px; padding: 16px; text-align: center;">
-            <div style="color: #3B82F6; font-size: 22px; font-weight: 700;">${opp.timeline_weeks}</div>
-            <div style="color: #9CA3AF; font-size: 11px; margin-top: 4px;">Εβδομάδες</div>
-          </div>
-        </div>
-      </div>
-    `;
+                  <!-- Metrics -->
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #E5E5E5; padding-top: 16px;">
+                    <tr>
+                      <td width="33%" style="padding-top: 16px; text-align: center; border-right: 1px solid #E5E5E5;">
+                        <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #D97757; font-weight: bold;">${formatCurrency(annualSavings)}</div>
+                        <div style="font-family: Arial, sans-serif; font-size: 10px; color: #999999; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;">Ετήσια</div>
+                      </td>
+                      <td width="33%" style="padding-top: 16px; text-align: center; border-right: 1px solid #E5E5E5;">
+                        <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #1A1915;">${opp.time_savings_hours_week}</div>
+                        <div style="font-family: Arial, sans-serif; font-size: 10px; color: #999999; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;">Ωρες/Εβδ</div>
+                      </td>
+                      <td width="33%" style="padding-top: 16px; text-align: center;">
+                        <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #1A1915;">${opp.timeline_weeks}</div>
+                        <div style="font-family: Arial, sans-serif; font-size: 10px; color: #999999; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;">Εβδομαδες</div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>`;
     })
     .join('');
 
@@ -105,81 +121,123 @@ export function generateHtmlReport(result: AnalysisResult): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Opportunities Report - ${company}</title>
+  <title>AI Opportunity Report - ${company}</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%); color: #1A1915; -webkit-font-smoothing: antialiased;">
-  <div style="max-width: 640px; margin: 0 auto; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; background-color: #FAF9F7; font-family: Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FAF9F7;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
 
-    <!-- Logo Header -->
-    <div style="text-align: center; margin-bottom: 32px;">
-      <div style="display: inline-block; background: linear-gradient(135deg, #1A1915 0%, #2D2D2D 100%); padding: 16px 32px; border-radius: 50px;">
-        <span style="color: white; font-size: 20px; font-weight: 700; letter-spacing: -0.5px;">Liberators</span>
-        <span style="color: #D97757; font-size: 20px; font-weight: 700;"> AI</span>
-      </div>
-    </div>
+        <!-- Main container -->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background-color: #FFFFFF;">
 
-    <!-- Main Card -->
-    <div style="background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 40px; border-bottom: 1px solid #E5E5E5;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #1A1915; font-weight: bold;">Liberators</span>
+                    <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #D97757; font-weight: bold;"> AI</span>
+                  </td>
+                  <td style="text-align: right;">
+                    <span style="font-family: Arial, sans-serif; font-size: 12px; color: #999999;">${dateStr}</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-      <!-- Hero Section -->
-      <div style="background: linear-gradient(135deg, #1A1915 0%, #2D2D2D 100%); padding: 48px 32px; text-align: center;">
-        <div style="color: #D97757; font-size: 13px; font-weight: 600; letter-spacing: 2px; margin-bottom: 16px;">AI OPPORTUNITY REPORT</div>
-        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700; line-height: 1.3;">${company}</h1>
-        <p style="color: rgba(255,255,255,0.7); margin: 12px 0 0 0; font-size: 14px;">${industry} • ${dateStr}</p>
-      </div>
+          <!-- Title section -->
+          <tr>
+            <td style="padding: 48px 40px 32px 40px;">
+              <p style="font-family: Arial, sans-serif; font-size: 11px; color: #D97757; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px 0;">AI Opportunity Report</p>
+              <h1 style="font-family: Georgia, 'Times New Roman', serif; font-size: 32px; font-weight: normal; color: #1A1915; margin: 0 0 8px 0; line-height: 1.2;">${company}</h1>
+              <p style="font-family: Arial, sans-serif; font-size: 14px; color: #666666; margin: 0;">${industry}</p>
+            </td>
+          </tr>
 
-      <!-- Total Savings Banner -->
-      <div style="background: linear-gradient(135deg, #D97757 0%, #C4614B 100%); padding: 28px 32px; text-align: center;">
-        <div style="color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 500; margin-bottom: 8px;">Συνολική Δυνητική Ετήσια Εξοικονόμηση</div>
-        <div style="color: white; font-size: 42px; font-weight: 800; letter-spacing: -1px;">${totalSavings}</div>
-        <div style="color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 8px;">${totalHours} ώρες/εβδομάδα × 48 εβδομάδες × €25/ώρα</div>
-      </div>
+          <!-- Total savings -->
+          <tr>
+            <td style="padding: 0 40px 40px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #1A1915; border-radius: 4px;">
+                <tr>
+                  <td style="padding: 32px; text-align: center;">
+                    <p style="font-family: Arial, sans-serif; font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px 0;">Συνολικη Ετησια Εξοικονομηση</p>
+                    <p style="font-family: Georgia, 'Times New Roman', serif; font-size: 42px; color: #FFFFFF; margin: 0; font-weight: bold;">${formatCurrency(totalSavings)}</p>
+                    <p style="font-family: Arial, sans-serif; font-size: 12px; color: rgba(255,255,255,0.5); margin: 12px 0 0 0;">${totalHours} ωρες/εβδ. x 48 εβδ. x 25/ωρα</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-      <!-- Content -->
-      <div style="padding: 32px;">
+          <!-- Section title -->
+          <tr>
+            <td style="padding: 0 40px 24px 40px;">
+              <p style="font-family: Arial, sans-serif; font-size: 11px; color: #999999; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px 0;">Ευκαιριες Αυτοματοποιησης</p>
+              <div style="width: 40px; height: 2px; background-color: #D97757;"></div>
+            </td>
+          </tr>
 
-        <!-- Assessment -->
-        <div style="background: #F8F9FA; border-radius: 16px; padding: 24px; margin-bottom: 24px; border-left: 4px solid #D97757;">
-          <h2 style="color: #1A1915; margin: 0 0 12px 0; font-size: 16px; font-weight: 700;">📊 Αξιολόγηση</h2>
-          <p style="color: #4B5563; margin: 0; font-size: 14px; line-height: 1.7;">${result.raw_summary || 'Η επιχείρησή σας έχει σημαντικό δυναμικό για αυτοματοποίηση με AI. Οι παρακάτω ευκαιρίες μπορούν να βελτιώσουν την αποδοτικότητα και να μειώσουν το λειτουργικό κόστος.'}</p>
-        </div>
+          <!-- Opportunities -->
+          <tr>
+            <td style="padding: 0 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                ${opportunitiesHtml}
+              </table>
+            </td>
+          </tr>
 
-        <!-- Section Title -->
-        <h2 style="color: #1A1915; margin: 0 0 8px 0; font-size: 20px; font-weight: 700;">🚀 AI Ευκαιρίες Αυτοματοποίησης</h2>
-        <p style="color: #6B7280; margin: 0 0 24px 0; font-size: 14px;">Εντοπίσαμε 3 ευκαιρίες προσαρμοσμένες στην επιχείρησή σας</p>
+          <!-- CTA -->
+          <tr>
+            <td style="padding: 16px 40px 48px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border: 2px solid #D97757; border-radius: 4px;">
+                <tr>
+                  <td style="padding: 32px; text-align: center;">
+                    <h3 style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: normal; color: #1A1915; margin: 0 0 12px 0;">Ετοιμοι να ξεκινησετε;</h3>
+                    <p style="font-family: Arial, sans-serif; font-size: 14px; color: #666666; line-height: 1.6; margin: 0 0 24px 0;">Κλειστε ενα δωρεαν 30-λεπτο call για να συζητησουμε πως μπορουμε να υλοποιησουμε αυτες τις ευκαιριες.</p>
+                    <a href="https://calendly.com/liberators-ai/30min" style="display: inline-block; background-color: #D97757; color: #FFFFFF; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 32px; border-radius: 4px;">Κλειστε Call</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-        <!-- Opportunities -->
-        ${opportunitiesHtml}
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 32px 40px; background-color: #FAFAFA; border-top: 1px solid #E5E5E5;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <p style="font-family: Georgia, 'Times New Roman', serif; font-size: 14px; color: #1A1915; margin: 0 0 4px 0; font-weight: bold;">Liberators AI</p>
+                    <p style="font-family: Arial, sans-serif; font-size: 12px; color: #999999; margin: 0;">Your Business, Automated with AI</p>
+                  </td>
+                  <td style="text-align: right;">
+                    <a href="mailto:hello@liberators.ai" style="font-family: Arial, sans-serif; font-size: 12px; color: #D97757; text-decoration: none;">hello@liberators.ai</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-        <!-- CTA Section -->
-        <div style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border-radius: 16px; padding: 32px; margin-top: 32px; text-align: center;">
-          <div style="font-size: 32px; margin-bottom: 16px;">🎯</div>
-          <h3 style="color: #1A1915; margin: 0 0 12px 0; font-size: 20px; font-weight: 700;">Έτοιμοι να Ξεκινήσετε;</h3>
-          <p style="color: #4B5563; margin: 0 0 24px 0; font-size: 14px; line-height: 1.7;">Κλείστε ένα δωρεάν 30-λεπτο call με τους AI experts μας για να συζητήσουμε πώς μπορούμε να υλοποιήσουμε αυτές τις ευκαιρίες.</p>
-          <a href="https://calendly.com/liberators-ai/30min" style="display: inline-block; background: linear-gradient(135deg, #D97757 0%, #C4614B 100%); color: white; text-decoration: none; padding: 16px 40px; border-radius: 50px; font-weight: 700; font-size: 15px; box-shadow: 0 8px 20px rgba(217,119,87,0.35);">Κλείστε Δωρεάν Call →</a>
-        </div>
+        </table>
 
-      </div>
+        <!-- Disclaimer -->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px;">
+          <tr>
+            <td style="padding: 24px 40px; text-align: center;">
+              <p style="font-family: Arial, sans-serif; font-size: 11px; color: #AAAAAA; line-height: 1.6; margin: 0;">
+                Οι εκτιμησεις βασιζονται σε μεσους ορους αγορας.<br>
+                Τα πραγματικα αποτελεσματα μπορει να διαφερουν.
+              </p>
+            </td>
+          </tr>
+        </table>
 
-      <!-- Footer -->
-      <div style="background: #1A1915; padding: 32px; text-align: center;">
-        <p style="color: white; margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">Liberators AI</p>
-        <p style="color: rgba(255,255,255,0.6); margin: 0 0 16px 0; font-size: 13px;">Your Business, Automated with AI</p>
-        <div>
-          <a href="mailto:hello@liberators.ai" style="color: #D97757; text-decoration: none; font-size: 13px; margin: 0 12px;">hello@liberators.ai</a>
-          <a href="https://liberators.ai" style="color: #D97757; text-decoration: none; font-size: 13px; margin: 0 12px;">liberators.ai</a>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Disclaimer -->
-    <p style="text-align: center; color: #9CA3AF; font-size: 11px; margin-top: 24px; line-height: 1.6;">
-      Αυτό το report δημιουργήθηκε αυτόματα από το AI Opportunity Scanner.<br>
-      Οι εκτιμήσεις βασίζονται σε μέσους όρους αγοράς και μπορεί να διαφέρουν ανάλογα με την επιχείρησή σας.
-    </p>
-
-  </div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 
