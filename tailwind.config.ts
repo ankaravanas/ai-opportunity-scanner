@@ -47,6 +47,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['Georgia', 'Times New Roman', 'serif'],
       },
       boxShadow: {
         'soft': '0 2px 8px rgba(0, 0, 0, 0.06)',

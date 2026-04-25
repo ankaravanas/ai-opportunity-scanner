@@ -12,6 +12,8 @@ This file provides guidance to Claude Code when working in this repository.
 
 **Domain:** scan.liberators.ai
 
+**📋 For detailed project status, see:** [status.md](./status.md)
+
 ---
 
 ## Quick Context
@@ -62,22 +64,32 @@ These need to be called as REST API from the frontend.
 ```
 ai-opportunity-scanner/
 ├── CLAUDE.md              # This file — core context
-├── .claude/
-│   └── commands/          # Slash commands
-│       ├── prime.md       # /prime — session initialization
-│       ├── create-plan.md # /create-plan — implementation plans
-│       └── implement.md   # /implement — execute plans
-├── context/               # Project context
-│   ├── product.md         # Full PRD & user flows
-│   ├── backend.md         # MCP endpoint details
-│   └── design.md          # Design specs & colors
-├── tasks/                 # Task tracking
-│   └── lessons.md         # Accumulated learnings
-├── plans/                 # Implementation plans
-├── outputs/               # Work products
-├── reference/             # Templates, patterns
-├── scripts/               # Utility scripts
-└── src/                   # Application source (to be created)
+├── status.md              # Project status & documentation
+├── src/
+│   ├── app/               # Next.js app router
+│   │   ├── page.tsx       # Main page
+│   │   ├── globals.css    # Global styles
+│   │   └── api/           # API routes
+│   │       ├── analyze-stream/  # SSE analysis endpoint
+│   │       └── send-report/     # Email sending endpoint
+│   ├── components/        # React components
+│   │   ├── LandingSection.tsx
+│   │   ├── LoadingState.tsx
+│   │   ├── ResultsSection.tsx
+│   │   ├── OpportunityCard.tsx
+│   │   ├── OpportunityMatrix.tsx
+│   │   └── EmailCapture.tsx
+│   └── lib/               # Utilities & services
+│       ├── types.ts       # TypeScript interfaces
+│       ├── colors.ts      # Department colors
+│       ├── api.ts         # Frontend API utils
+│       └── services/      # Backend services
+│           ├── firecrawl.ts   # Website scraping
+│           ├── analysis.ts    # OpenAI analysis
+│           ├── email.ts       # Email templates
+│           ├── clickup.ts     # CRM integration
+│           └── slack.ts       # Slack notifications
+└── public/                # Static assets
 ```
 
 ---
@@ -109,75 +121,81 @@ Run at session start. Claude will:
 ┌─────────────────────────────────────────────────────────────┐
 │                    FRONTEND (Next.js)                       │
 │                                                             │
-│  Landing → Loading → Results → Email Capture                │
+│  Landing → Loading (SSE) → Results → Email Capture          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
                             │
-                            │ REST API calls
+                            │ API Routes
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    API Routes (/api)                        │
+│                    /api (Next.js API Routes)                │
 │                                                             │
-│  POST /api/analyze     → voice_agent_website_analysis       │
-│  POST /api/send-report → send_report_to_email               │
+│  POST /api/analyze-stream → SSE streaming analysis          │
+│  POST /api/send-report    → Gmail OAuth2 email              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
                             │
-                            │ MCP calls
+            ┌───────────────┼───────────────┐
+            ▼               ▼               ▼
+┌───────────────┐  ┌───────────────┐  ┌───────────────┐
+│   Firecrawl   │  │    OpenAI     │  │   ClickUp     │
+│  (scraping)   │  │   (GPT-4o)    │  │    (CRM)      │
+└───────────────┘  └───────────────┘  └───────────────┘
+                            │
                             ▼
-┌─────────────────────────────────────────────────────────────┐
-│              MCP Server (Railway - existing)                │
-│                                                             │
-│  https://web-voice-automation.up.railway.app/mcp            │
-│                                                             │
-│  - Firecrawl scrape                                         │
-│  - GPT-4o analysis                                          │
-│  - HTML report generation                                   │
-│  - ClickUp lead capture                                     │
-│  - Email sending                                            │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+                   ┌───────────────┐
+                   │     Slack     │
+                   │ (notifications)│
+                   └───────────────┘
 ```
 
 ---
 
 ## Design System
 
-### Colors
+### Brand Colors
+- **Primary:** #007BFF (Liberators blue)
+- **Text:** #1A1915 (Dark charcoal)
+- **Background:** #FAFAFA (Light gray)
+- **Borders:** #E5E5E5
+
+### Department Colors
 
 | Department | Background | Text |
 |------------|------------|------|
-| Sales | #E6F1FB | #0C447C |
-| Operations | #EEEDFE | #3C3489 |
-| HR | #E1F5EE | #085041 |
-| Customer Service | #EAF3DE | #27500A |
-| Finance | #FAEEDA | #633806 |
-| Marketing | #FAECE7 | #712B13 |
+| Sales | #E6F2FF | #0055CC |
+| Operations | #EEF0FF | #4040CC |
+| HR | #E6F5F0 | #008060 |
+| Customer Service | #E8F5E6 | #2D8020 |
+| Finance | #FFF8E6 | #CC8800 |
+| Marketing | #FFE6F0 | #CC2266 |
 
 ### Typography
-- Sans-serif font
-- Body: 16px
-- Headings: 24px
+- **Sans-serif:** Inter (body text)
+- **Serif:** Georgia (headings, numbers)
+- Editorial aesthetic
 
 ### Style
-- Clean, premium, no gradients
-- Flat cards with subtle borders
+- Clean, premium, editorial look
+- Serif headings with sans body
+- White cards with subtle borders
 - Mobile-responsive
 
 ---
 
 ## MVP Scope
 
-### Must Have
-- [ ] URL input → loading → 3 opportunity cards
-- [ ] Email capture → send report
-- [ ] Mobile responsive
-- [ ] Liberators AI branding
-
-### Nice to Have
-- [ ] Opportunity Matrix visual (2x2 grid)
-- [ ] Department color coding
-- [ ] Animated transitions
+### Completed ✅
+- [x] URL input → loading → 3 opportunity cards
+- [x] Email capture → send report
+- [x] Mobile responsive
+- [x] Liberators AI branding
+- [x] Opportunity Matrix visual (2x2 grid)
+- [x] Department color coding
+- [x] Animated transitions
+- [x] ClickUp CRM integration
+- [x] Slack notifications for new leads
+- [x] Editorial UI redesign
 
 ### Out of Scope (v1)
 - User accounts / login

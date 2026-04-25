@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { scrapeWebsite } from '@/lib/services/firecrawl';
 import { analyzeWebsite } from '@/lib/services/analysis';
 import { captureClickUpLead } from '@/lib/services/clickup';
+import { sendSlackLeadNotification } from '@/lib/services/slack';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -69,15 +70,27 @@ export async function POST(request: NextRequest) {
 
         // Step 3: Saving lead
         send({ step: 3, status: 'start', message: 'Saving lead' });
-        await captureClickUpLead({
+        const opportunityTitles = analysisResult.opportunities.map(o => o.title);
+
+        const clickupResult = await captureClickUpLead({
           companyName: analysisResult.company,
           industry: analysisResult.industry,
           websiteUrl: normalizedUrl,
           emails: scrapeResult.emails,
           phones: scrapeResult.phones,
           businessSummary: analysisResult.raw_summary,
-          opportunities: analysisResult.opportunities.map(o => o.title),
+          opportunities: opportunityTitles,
+        }).catch(() => ({ success: false }));
+
+        // Send Slack notification
+        await sendSlackLeadNotification({
+          companyName: analysisResult.company,
+          websiteUrl: normalizedUrl,
+          industry: analysisResult.industry,
+          opportunities: opportunityTitles,
+          clickupTaskId: clickupResult?.taskId,
         }).catch(() => {});
+
         send({ step: 3, status: 'complete', message: 'Lead saved' });
 
         // Done - send final result

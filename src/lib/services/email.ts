@@ -25,13 +25,13 @@ function calcAnnualSavings(hoursPerWeek: number): number {
 }
 
 /**
- * Format currency
+ * Format currency with Euro symbol
  */
 function formatCurrency(amount: number): string {
   if (amount >= 1000) {
-    return `${Math.round(amount / 1000).toLocaleString('el-GR')}K`;
+    return `€${Math.round(amount / 1000).toLocaleString('el-GR')}K`;
   }
-  return amount.toLocaleString('el-GR');
+  return `€${amount.toLocaleString('el-GR')}`;
 }
 
 /**
@@ -196,8 +196,8 @@ export function generateHtmlReport(result: AnalysisResult): string {
                 <tr>
                   <td style="padding: 32px; text-align: center;">
                     <h3 style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: normal; color: #1A1915; margin: 0 0 12px 0;">Ετοιμοι να ξεκινησετε;</h3>
-                    <p style="font-family: Arial, sans-serif; font-size: 14px; color: #666666; line-height: 1.6; margin: 0 0 24px 0;">Κλειστε ενα δωρεαν 30-λεπτο call για να συζητησουμε πως μπορουμε να υλοποιησουμε αυτες τις ευκαιριες.</p>
-                    <a href="https://calendly.com/liberators-ai/30min" style="display: inline-block; background-color: #007BFF; color: #FFFFFF; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 32px; border-radius: 4px;">Κλειστε Call</a>
+                    <p style="font-family: Arial, sans-serif; font-size: 14px; color: #666666; line-height: 1.6; margin: 0 0 24px 0;">Επικοινωνηστε μαζι μας για να συζητησουμε πως μπορουμε να υλοποιησουμε αυτες τις ευκαιριες.</p>
+                    <a href="mailto:hello@liberators.ai" style="display: inline-block; background-color: #007BFF; color: #FFFFFF; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 32px; border-radius: 4px;">Επικοινωνηστε μαζι μας</a>
                   </td>
                 </tr>
               </table>

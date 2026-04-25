@@ -1,5 +1,4 @@
 import { Opportunity } from '@/lib/types';
-import { departmentColorsHex } from '@/lib/colors';
 
 interface OpportunityMatrixProps {
   opportunities: Opportunity[];
@@ -10,44 +9,37 @@ export default function OpportunityMatrix({ opportunities }: OpportunityMatrixPr
   const getPositions = () => {
     const positions: { x: number; y: number }[] = [];
 
-    // Base X positions for effort levels - clearly within quadrants
+    // Base X positions for effort levels
     const effortX = { low: 25, medium: 50, high: 75 };
 
     // Base Y position from impact score (1-10)
-    // High impact (10) = top (20%), Low impact (1) = bottom (80%)
     const getBaseY = (impactScore: number): number => {
-      // Map 1-10 to 80-20 range
-      return 80 - ((impactScore - 1) * (60 / 9));
+      return 85 - ((impactScore - 1) * (70 / 9));
     };
 
     opportunities.forEach((opp, index) => {
       let x = effortX[opp.effort];
       let y = getBaseY(opp.impact_score);
 
-      // Adjust medium effort to be clearly in a quadrant based on impact
+      // Adjust medium effort
       if (opp.effort === 'medium') {
-        // If high impact, push slightly right into Strategic
-        // If low impact, push slightly right into Low Priority
-        x = opp.impact_score >= 6 ? 62 : 62;
+        x = 60;
       }
 
-      // Check for collisions with previous dots
+      // Check for collisions
       for (let i = 0; i < index; i++) {
         const prev = positions[i];
         const dx = Math.abs(x - prev.x);
         const dy = Math.abs(y - prev.y);
 
-        // If too close, offset this dot
-        if (dx < 15 && dy < 15) {
-          // Offset diagonally
-          x += 12;
-          y += 8;
+        if (dx < 12 && dy < 12) {
+          x += 10;
+          y += 6;
         }
       }
 
-      // Clamp to visible range
-      x = Math.max(12, Math.min(88, x));
-      y = Math.max(15, Math.min(85, y));
+      x = Math.max(10, Math.min(90, x));
+      y = Math.max(12, Math.min(88, y));
 
       positions.push({ x, y });
     });
@@ -57,175 +49,131 @@ export default function OpportunityMatrix({ opportunities }: OpportunityMatrixPr
 
   const positions = getPositions();
 
-  // Get quadrant label for opportunity
-  const getQuadrant = (opp: Opportunity): string => {
+  // Get quadrant info
+  const getQuadrant = (opp: Opportunity) => {
     const highImpact = opp.impact_score >= 6;
     const lowEffort = opp.effort === 'low';
 
-    if (highImpact && lowEffort) return 'Quick Win';
-    if (highImpact && !lowEffort) return 'Strategic';
-    if (!highImpact && lowEffort) return 'Easy Win';
-    return 'Low Priority';
-  };
-
-  // Check if opportunity is in Quick Wins quadrant
-  const isQuickWin = (opp: Opportunity): boolean => {
-    return opp.effort === 'low' && opp.impact_score >= 6;
+    if (highImpact && lowEffort) return { label: 'Quick Win', priority: 1 };
+    if (highImpact && !lowEffort) return { label: 'Strategic', priority: 2 };
+    if (!highImpact && lowEffort) return { label: 'Easy Win', priority: 3 };
+    return { label: 'Low Priority', priority: 4 };
   };
 
   return (
-    <section className="w-full bg-white py-16">
-      {/* Full width container - no max-width */}
-      <div className="w-full px-4 md:px-8">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h3 className="text-2xl md:text-3xl font-bold text-text-main mb-2">
-            AI Opportunity Matrix
-          </h3>
-          <p className="text-text-secondary">
-            Προτεραιοποίηση ευκαιριών με βάση impact και effort
-          </p>
-        </div>
-
-        {/* Matrix - Full Width */}
-        <div className="w-full flex">
-          {/* Y Axis Label */}
-          <div className="flex-shrink-0 flex items-center justify-center w-12">
-            <span className="text-sm font-semibold text-text-muted uppercase tracking-wider -rotate-90 whitespace-nowrap">
-              High Impact
-            </span>
+    <div className="w-full">
+      {/* Matrix Container */}
+      <div className="bg-white border border-[#E5E5E5] rounded-2xl p-6 md:p-8">
+        {/* Matrix Grid */}
+        <div className="relative aspect-[4/3] md:aspect-[2/1] max-h-[400px]">
+          {/* Background quadrants */}
+          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 rounded-xl overflow-hidden">
+            {/* Top-left: Quick Wins */}
+            <div className="bg-primary/5 border-r border-b border-[#E5E5E5]" />
+            {/* Top-right: Strategic */}
+            <div className="bg-[#F8F8F8] border-b border-[#E5E5E5]" />
+            {/* Bottom-left: Easy Wins */}
+            <div className="bg-[#FAFAFA] border-r border-[#E5E5E5]" />
+            {/* Bottom-right: Low Priority */}
+            <div className="bg-[#F5F5F5]" />
           </div>
 
-          {/* Main Matrix Area */}
-          <div className="flex-1">
-            <div className="flex">
-              {/* Y Axis Numbers */}
-              <div className="w-8 flex flex-col justify-between py-4 text-right pr-2">
-                <span className="text-xs text-text-muted font-medium">10</span>
-                <span className="text-xs text-text-muted font-medium">5</span>
-                <span className="text-xs text-text-muted font-medium">0</span>
-              </div>
-
-              {/* Matrix Grid - Takes full remaining width */}
-              <div className="flex-1 relative" style={{ height: '500px' }}>
-                <div className="absolute inset-0 border-2 border-border-medium rounded-2xl">
-                  {/* Quadrant backgrounds */}
-                  <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 rounded-xl overflow-hidden">
-                    {/* Top-left: High Impact, Low Effort = Quick Wins */}
-                    <div className="bg-[#E6F2FF] relative">
-                      <span className="absolute top-3 left-3 text-xs md:text-sm text-primary font-bold uppercase tracking-wide">Quick Wins</span>
-                    </div>
-                    {/* Top-right: High Impact, High Effort = Strategic */}
-                    <div className="bg-[#F8F8FC] relative">
-                      <span className="absolute top-3 right-3 text-xs md:text-sm text-text-secondary font-semibold uppercase tracking-wide">Strategic</span>
-                    </div>
-                    {/* Bottom-left: Low Impact, Low Effort = Easy Wins */}
-                    <div className="bg-[#F5F5F5] relative">
-                      <span className="absolute bottom-3 left-3 text-xs md:text-sm text-text-muted font-semibold uppercase tracking-wide">Easy Wins</span>
-                    </div>
-                    {/* Bottom-right: Low Impact, High Effort = Low Priority */}
-                    <div className="bg-[#FAFAFA] relative">
-                      <span className="absolute bottom-3 right-3 text-xs md:text-sm text-text-muted font-semibold uppercase tracking-wide">Low Priority</span>
-                    </div>
-                  </div>
-
-                  {/* Grid lines */}
-                  <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute left-1/2 top-0 bottom-0 border-l-2 border-dashed border-border-medium" />
-                    <div className="absolute top-1/2 left-0 right-0 border-t-2 border-dashed border-border-medium" />
-                  </div>
-
-                  {/* Plot opportunities */}
-                  {opportunities.map((opp, index) => {
-                    const { x, y } = positions[index];
-                    const colors = departmentColorsHex[opp.department];
-
-                    return (
-                      <div
-                        key={index}
-                        className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
-                        style={{
-                          left: `${x}%`,
-                          top: `${y}%`,
-                          zIndex: 10 + index,
-                        }}
-                      >
-                        {/* Dot */}
-                        <div
-                          className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-lg md:text-xl font-bold shadow-md cursor-pointer hover:scale-110 transition-transform"
-                          style={{
-                            backgroundColor: colors.bg,
-                            color: colors.text,
-                            border: `3px solid ${colors.text}`,
-                          }}
-                          title={opp.title}
-                        >
-                          {index + 1}
-                        </div>
-                        {/* Tooltip on hover */}
-                        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
-                          <div
-                            className="px-4 py-2 rounded-lg text-sm font-medium shadow-xl max-w-[240px] text-center"
-                            style={{
-                              backgroundColor: colors.text,
-                              color: '#fff',
-                            }}
-                          >
-                            {opp.title}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* X Axis Labels */}
-            <div className="flex mt-4 ml-8">
-              <div className="flex-1 flex justify-between px-4">
-                <span className="text-sm font-medium text-text-muted">Low Effort</span>
-                <span className="text-sm font-medium text-text-muted">Medium</span>
-                <span className="text-sm font-medium text-text-muted">High Effort</span>
-              </div>
-            </div>
+          {/* Quadrant labels */}
+          <div className="absolute inset-0 pointer-events-none">
+            <span className="absolute top-4 left-4 text-xs font-semibold text-primary uppercase tracking-wider">Quick Wins</span>
+            <span className="absolute top-4 right-4 text-xs font-semibold text-[#888888] uppercase tracking-wider">Strategic</span>
+            <span className="absolute bottom-4 left-4 text-xs font-semibold text-[#AAAAAA] uppercase tracking-wider">Easy Wins</span>
+            <span className="absolute bottom-4 right-4 text-xs font-semibold text-[#CCCCCC] uppercase tracking-wider">Low Priority</span>
           </div>
-        </div>
 
-        {/* Legend */}
-        <div className="max-w-5xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Axis labels */}
+          <div className="absolute -left-2 top-1/2 -translate-y-1/2 -translate-x-full">
+            <span className="text-[10px] font-medium text-[#999999] uppercase tracking-wider -rotate-90 block whitespace-nowrap">Impact →</span>
+          </div>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full mt-2">
+            <span className="text-[10px] font-medium text-[#999999] uppercase tracking-wider">Effort →</span>
+          </div>
+
+          {/* Opportunity dots */}
           {opportunities.map((opp, index) => {
-            const colors = departmentColorsHex[opp.department];
+            const { x, y } = positions[index];
             const quadrant = getQuadrant(opp);
-            const isHighPriority = quadrant === 'Quick Win' || quadrant === 'Strategic';
+            const isHighPriority = quadrant.priority <= 2;
+
             return (
               <div
                 key={index}
-                className={`flex items-center gap-4 p-5 rounded-xl border-2 ${
-                  isHighPriority ? 'bg-[#E6F2FF] border-primary/40' : 'bg-white border-border-light'
-                }`}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 group cursor-pointer"
+                style={{
+                  left: `${x}%`,
+                  top: `${y}%`,
+                  zIndex: 10 + index,
+                }}
               >
+                {/* Dot */}
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold flex-shrink-0 shadow-md"
-                  style={{
-                    backgroundColor: colors.bg,
-                    color: colors.text,
-                    border: `3px solid ${colors.text}`,
-                  }}
+                  className={`
+                    w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center
+                    font-serif text-lg md:text-xl font-bold
+                    transition-all duration-200 hover:scale-110
+                    ${isHighPriority
+                      ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                      : 'bg-[#1A1915] text-white shadow-lg shadow-black/20'
+                    }
+                  `}
+                  title={opp.title}
                 >
                   {index + 1}
                 </div>
-                <div className="min-w-0">
-                  <span className="text-sm font-semibold text-text-main line-clamp-2">{opp.title}</span>
-                  <span className={`text-xs font-bold block mt-1 ${isHighPriority ? 'text-primary' : 'text-text-muted'}`}>
-                    {quadrant}
-                  </span>
+
+                {/* Tooltip */}
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                  <div className="bg-[#1A1915] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-xl max-w-[200px] text-center whitespace-nowrap">
+                    {opp.title}
+                  </div>
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full -mt-1 border-4 border-transparent border-t-[#1A1915]" />
                 </div>
               </div>
             );
           })}
         </div>
+
+        {/* Legend */}
+        <div className="mt-8 pt-6 border-t border-[#E5E5E5]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {opportunities.map((opp, index) => {
+              const quadrant = getQuadrant(opp);
+              const isHighPriority = quadrant.priority <= 2;
+
+              return (
+                <div
+                  key={index}
+                  className={`
+                    flex items-center gap-3 p-4 rounded-xl transition-colors
+                    ${isHighPriority ? 'bg-primary/5' : 'bg-[#F8F8F8]'}
+                  `}
+                >
+                  <div
+                    className={`
+                      w-8 h-8 rounded-full flex items-center justify-center
+                      font-serif text-sm font-bold flex-shrink-0
+                      ${isHighPriority ? 'bg-primary text-white' : 'bg-[#1A1915] text-white'}
+                    `}
+                  >
+                    {index + 1}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-[#1A1915] line-clamp-1">{opp.title}</p>
+                    <p className={`text-xs ${isHighPriority ? 'text-primary' : 'text-[#888888]'}`}>
+                      {quadrant.label}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

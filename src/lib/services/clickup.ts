@@ -35,16 +35,21 @@ function isValidEmail(email: string): boolean {
   return true;
 }
 
+export interface ClickUpResult {
+  success: boolean;
+  taskId?: string;
+}
+
 /**
  * Capture lead in ClickUp CRM with custom fields
  */
-export async function captureClickUpLead(data: LeadData): Promise<void> {
+export async function captureClickUpLead(data: LeadData): Promise<ClickUpResult> {
   const apiKey = process.env.CLICKUP_API_KEY;
   const listId = process.env.CLICKUP_LIST_ID;
 
   if (!apiKey || !listId) {
     console.log('[ClickUp] Not configured, skipping lead capture');
-    return;
+    return { success: false };
   }
 
   try {
@@ -74,7 +79,8 @@ export async function captureClickUpLead(data: LeadData): Promise<void> {
     }
 
     descriptionParts.push('---');
-    descriptionParts.push('Lead από AI Opportunity Scanner');
+    descriptionParts.push('🤖 Πηγή: AI Opportunity Scanner (scan.liberators.ai)');
+    descriptionParts.push('📊 Lead captured automatically via website analysis tool');
 
     const description = descriptionParts.join('\n');
 
@@ -126,11 +132,14 @@ export async function captureClickUpLead(data: LeadData): Promise<void> {
     if (response.ok) {
       const result = await response.json();
       console.log(`[ClickUp] Lead captured: ${data.companyName} (ID: ${result.id})`);
+      return { success: true, taskId: result.id };
     } else {
       const errorText = await response.text();
       console.error(`[ClickUp] Failed: ${response.status} - ${errorText}`);
+      return { success: false };
     }
   } catch (error) {
     console.error('[ClickUp] Error:', error);
+    return { success: false };
   }
 }
