@@ -114,7 +114,9 @@ export default function OpportunityCard({ opportunity, index }: OpportunityCardP
               <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <span className="text-text-secondary">{getEffortLabel(opportunity.effort)}</span>
+              <span className="text-text-secondary">
+                <span className="text-text-muted">Προσπάθεια:</span> {getEffortLabel(opportunity.effort)}
+              </span>
             </div>
           </Tooltip>
 

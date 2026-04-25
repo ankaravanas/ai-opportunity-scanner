@@ -100,11 +100,11 @@ async function analyzeWithGPT(
 
   const prompt = `You are an expert AI automation consultant. Analyze this business and identify exactly 3 specific AI automation opportunities.
 
-LANGUAGE REQUIREMENTS:
-- Respond in ${responseLanguage}
-- Keep technical/AI terms in English (e.g., "AI", "chatbot", "automation", "CRM", "workflow", "pipeline", "lead scoring", "NLP", "machine learning")
-- Mix languages naturally: "Αυτοματοποίηση Lead Generation με AI" is correct
-- Titles should be clear and actionable in ${responseLanguage}
+CRITICAL LANGUAGE REQUIREMENT:
+- ALL text content MUST be in GREEK (Ελληνικά)
+- Keep ONLY technical AI/tech terms in English: AI, chatbot, CRM, workflow, automation, lead scoring, NLP, API
+- Example title: "Αυτοματοποίηση Εξυπηρέτησης Πελατών με AI Chatbot"
+- Example description: "Υλοποίηση ενός AI chatbot που θα απαντά αυτόματα σε συχνές ερωτήσεις πελατών..."
 
 BUSINESS INFORMATION:
 - Company: ${businessInfo.companyName}
@@ -112,37 +112,29 @@ BUSINESS INFORMATION:
 - Services: ${businessInfo.services.join(', ') || 'Not specified'}
 - Technologies: ${businessInfo.technologies.join(', ') || 'Not specified'}
 
-WEBSITE CONTENT ANALYSIS:
+WEBSITE CONTENT:
 ${content.slice(0, 2500)}
 
-ANALYSIS REQUIREMENTS:
-Identify exactly 3 AI automation opportunities that are:
-- Practical and implementable
-- Aligned with their business model
-- Focused on ROI within 6-12 months
-- Specific to their industry and operations
-- Do NOT mention any pricing, costs, or fees
+REQUIREMENTS:
+- 3 specific AI automation opportunities
+- Practical, implementable within 6-12 months
+- Industry-specific
+- NO pricing/costs mentioned
 
-IMPORTANT - Description format:
-- Write 3-5 sentences per description explaining the opportunity in detail
-- Be specific about what processes will be automated
-- Explain the benefit clearly
-- Use ${responseLanguage} with English technical terms
-
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON:
 {
     "opportunities": [
         {
-            "title": "Specific automation solution name",
-            "description": "Detailed description explaining what will be automated, how it works, and what benefits it brings. Write 3-5 sentences.",
-            "impact": "Specific measurable business benefit (e.g., '30% reduction in response time', '15 hours saved weekly')",
-            "implementation": "Implementation approach",
-            "roi_estimate": "ROI timeframe",
+            "title": "Τίτλος στα ελληνικά με AI/tech terms στα αγγλικά",
+            "description": "Αναλυτική περιγραφή 3-5 προτάσεων στα ελληνικά. Τι θα αυτοματοποιηθεί, πώς λειτουργεί, ποια τα οφέλη.",
+            "impact": "Μετρήσιμο όφελος, π.χ. '30% μείωση χρόνου απόκρισης', '15 ώρες εξοικονόμηση/εβδ'",
+            "implementation": "Προσέγγιση υλοποίησης",
+            "roi_estimate": "Χρονοδιάγραμμα ROI",
             "priority": "High/Medium/Low"
         }
     ],
-    "overall_assessment": "Business automation readiness assessment",
-    "recommended_next_steps": "Specific actionable next steps"
+    "overall_assessment": "Αξιολόγηση ετοιμότητας για AI automation",
+    "recommended_next_steps": "Συγκεκριμένα επόμενα βήματα"
 }`;
 
   const response = await openai.chat.completions.create({
@@ -170,36 +162,36 @@ Return ONLY valid JSON in this exact format:
     // Fallback
   }
 
-  // Fallback analysis
+  // Fallback analysis (Greek)
   return {
     opportunities: [
       {
-        title: 'Process Automation Implementation',
-        description: 'Automate repetitive manual processes to improve efficiency.',
-        impact: '25-35% time savings on routine operations',
-        implementation: 'Workflow automation tools',
-        roi_estimate: '3-6 months payback',
+        title: 'Αυτοματοποίηση Επαναλαμβανόμενων Διαδικασιών',
+        description: 'Αυτοματοποίηση χειροκίνητων διαδικασιών για βελτίωση της αποδοτικότητας. Περιλαμβάνει workflow automation για εργασίες ρουτίνας, μείωση ανθρώπινων λαθών και απελευθέρωση χρόνου για στρατηγικές δραστηριότητες.',
+        impact: '25-35% εξοικονόμηση χρόνου σε καθημερινές εργασίες',
+        implementation: 'Εργαλεία workflow automation',
+        roi_estimate: '3-6 μήνες απόσβεση',
         priority: 'High',
       },
       {
-        title: 'AI-Powered Customer Service',
-        description: 'Implement intelligent chatbots and automated support.',
-        impact: '24/7 availability with 60% faster response times',
+        title: 'AI Chatbot Εξυπηρέτησης Πελατών',
+        description: 'Υλοποίηση έξυπνου AI chatbot για αυτόματη εξυπηρέτηση πελατών. Απαντά σε συχνές ερωτήσεις 24/7, κατευθύνει τους πελάτες στο σωστό τμήμα και μειώνει τον φόρτο της ομάδας υποστήριξης.',
+        impact: '24/7 διαθεσιμότητα, 60% ταχύτερη απόκριση',
         implementation: 'AI chatbot platform',
-        roi_estimate: 'Immediate cost savings',
+        roi_estimate: 'Άμεση εξοικονόμηση κόστους',
         priority: 'Medium',
       },
       {
-        title: 'Automated Data Analytics',
-        description: 'Real-time business intelligence and automated reporting.',
-        impact: 'Data-driven decision making',
+        title: 'Αυτοματοποιημένα Analytics & Reporting',
+        description: 'Real-time business intelligence με αυτόματη δημιουργία αναφορών. Συγκέντρωση δεδομένων από πολλαπλές πηγές, dashboards για λήψη αποφάσεων και alerts για σημαντικές μεταβολές.',
+        impact: 'Data-driven αποφάσεις',
         implementation: 'Analytics platform',
-        roi_estimate: '6-12 months strategic value',
+        roi_estimate: '6-12 μήνες στρατηγική αξία',
         priority: 'Medium',
       },
     ],
-    overall_assessment: 'Strong potential for AI automation implementation.',
-    recommended_next_steps: 'Begin with process mapping and prioritize highest-ROI opportunities.',
+    overall_assessment: 'Υψηλό δυναμικό για υλοποίηση AI automation.',
+    recommended_next_steps: 'Ξεκινήστε με χαρτογράφηση διαδικασιών και προτεραιοποίηση ευκαιριών με το υψηλότερο ROI.',
   };
 }
 

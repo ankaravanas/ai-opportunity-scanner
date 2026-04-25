@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 
 const LOADING_STEPS = [
-  'Αναλύουμε το website σας...',
-  'Εντοπίζουμε departments και υπηρεσίες...',
-  'Αξιολογούμε ευκαιρίες AI...',
-  'Υπολογίζουμε εκτιμήσεις...',
-  'Ετοιμάζουμε τα αποτελέσματα...',
+  { text: 'Σύνδεση με το website...', icon: '🔗' },
+  { text: 'Ανάλυση περιεχομένου...', icon: '📄' },
+  { text: 'Εντοπισμός ευκαιριών AI...', icon: '🤖' },
+  { text: 'Υπολογισμός εξοικονομήσεων...', icon: '💰' },
+  { text: 'Ετοιμασία αποτελεσμάτων...', icon: '✨' },
 ];
 
 interface LoadingStateProps {
@@ -19,23 +19,23 @@ export default function LoadingState({ onCancel }: LoadingStateProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Progress animation - completes in ~25 seconds
+    // Progress animation - smooth increment
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 95) return prev;
-        // Slower progress as we get closer to 100
-        const increment = prev < 50 ? 2 : prev < 80 ? 1.5 : 0.5;
-        return Math.min(95, prev + increment);
+        if (prev >= 92) return prev;
+        // Variable speed: fast start, slow middle, pause near end
+        const increment = prev < 30 ? 3 : prev < 60 ? 2 : prev < 85 ? 1 : 0.3;
+        return Math.min(92, prev + increment);
       });
-    }, 500);
+    }, 400);
 
-    // Step animation - change every ~5 seconds
+    // Step animation - change every ~4 seconds
     const stepInterval = setInterval(() => {
       setCurrentStep((prev) => {
         if (prev >= LOADING_STEPS.length - 1) return prev;
         return prev + 1;
       });
-    }, 5000);
+    }, 4000);
 
     return () => {
       clearInterval(progressInterval);
@@ -71,24 +71,36 @@ export default function LoadingState({ onCancel }: LoadingStateProps) {
         </div>
 
         {/* Step indicators */}
-        <div className="flex justify-center gap-2 mb-5">
-          {LOADING_STEPS.map((_, index) => (
+        <div className="flex justify-center gap-3 mb-6">
+          {LOADING_STEPS.map((step, index) => (
             <div
               key={index}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index <= currentStep ? 'bg-primary scale-100' : 'bg-border-medium scale-75'
+              className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-500 ${
+                index < currentStep
+                  ? 'bg-primary text-white scale-100'
+                  : index === currentStep
+                  ? 'bg-primary-light text-primary scale-110 animate-pulse'
+                  : 'bg-border-light text-text-muted scale-90'
               }`}
-            />
+            >
+              {index < currentStep ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <span className="text-sm">{step.icon}</span>
+              )}
+            </div>
           ))}
         </div>
 
         {/* Current step text */}
         <p className="text-lg text-text-main font-semibold">
-          {LOADING_STEPS[currentStep]}
+          {LOADING_STEPS[currentStep].text}
         </p>
 
         <p className="mt-3 text-sm text-text-muted">
-          {Math.round(progress)}% · 15-30 δευτερόλεπτα
+          Περίπου 15-30 δευτερόλεπτα
         </p>
 
         {onCancel && (

@@ -33,9 +33,9 @@ export function getDepartmentTextClass(department: Department): string {
 
 export function getEffortLabel(effort: 'low' | 'medium' | 'high'): string {
   const labels = {
-    low: 'Χαμηλό',
-    medium: 'Μεσαίο',
-    high: 'Υψηλό',
+    low: 'Χαμηλή',
+    medium: 'Μέτρια',
+    high: 'Υψηλή',
   };
   return labels[effort];
 }
