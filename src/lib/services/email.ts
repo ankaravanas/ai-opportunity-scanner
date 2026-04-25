@@ -95,7 +95,7 @@ export function generateHtmlReport(result: AnalysisResult): string {
                   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #E5E5E5; padding-top: 16px;">
                     <tr>
                       <td width="33%" style="padding-top: 16px; text-align: center; border-right: 1px solid #E5E5E5;">
-                        <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #D97757; font-weight: bold;">${formatCurrency(annualSavings)}</div>
+                        <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #007BFF; font-weight: bold;">${formatCurrency(annualSavings)}</div>
                         <div style="font-family: Arial, sans-serif; font-size: 10px; color: #999999; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;">Ετήσια</div>
                       </td>
                       <td width="33%" style="padding-top: 16px; text-align: center; border-right: 1px solid #E5E5E5;">
@@ -138,7 +138,7 @@ export function generateHtmlReport(result: AnalysisResult): string {
                 <tr>
                   <td>
                     <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #1A1915; font-weight: bold;">Liberators</span>
-                    <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #D97757; font-weight: bold;"> AI</span>
+                    <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #007BFF; font-weight: bold;"> AI</span>
                   </td>
                   <td style="text-align: right;">
                     <span style="font-family: Arial, sans-serif; font-size: 12px; color: #999999;">${dateStr}</span>
@@ -151,7 +151,7 @@ export function generateHtmlReport(result: AnalysisResult): string {
           <!-- Title section -->
           <tr>
             <td style="padding: 48px 40px 32px 40px;">
-              <p style="font-family: Arial, sans-serif; font-size: 11px; color: #D97757; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px 0;">AI Opportunity Report</p>
+              <p style="font-family: Arial, sans-serif; font-size: 11px; color: #007BFF; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px 0;">AI Opportunity Report</p>
               <h1 style="font-family: Georgia, 'Times New Roman', serif; font-size: 32px; font-weight: normal; color: #1A1915; margin: 0 0 8px 0; line-height: 1.2;">${company}</h1>
               <p style="font-family: Arial, sans-serif; font-size: 14px; color: #666666; margin: 0;">${industry}</p>
             </td>
@@ -176,7 +176,7 @@ export function generateHtmlReport(result: AnalysisResult): string {
           <tr>
             <td style="padding: 0 40px 24px 40px;">
               <p style="font-family: Arial, sans-serif; font-size: 11px; color: #999999; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px 0;">Ευκαιριες Αυτοματοποιησης</p>
-              <div style="width: 40px; height: 2px; background-color: #D97757;"></div>
+              <div style="width: 40px; height: 2px; background-color: #007BFF;"></div>
             </td>
           </tr>
 
@@ -192,12 +192,12 @@ export function generateHtmlReport(result: AnalysisResult): string {
           <!-- CTA -->
           <tr>
             <td style="padding: 16px 40px 48px 40px;">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border: 2px solid #D97757; border-radius: 4px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border: 2px solid #007BFF; border-radius: 4px;">
                 <tr>
                   <td style="padding: 32px; text-align: center;">
                     <h3 style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: normal; color: #1A1915; margin: 0 0 12px 0;">Ετοιμοι να ξεκινησετε;</h3>
                     <p style="font-family: Arial, sans-serif; font-size: 14px; color: #666666; line-height: 1.6; margin: 0 0 24px 0;">Κλειστε ενα δωρεαν 30-λεπτο call για να συζητησουμε πως μπορουμε να υλοποιησουμε αυτες τις ευκαιριες.</p>
-                    <a href="https://calendly.com/liberators-ai/30min" style="display: inline-block; background-color: #D97757; color: #FFFFFF; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 32px; border-radius: 4px;">Κλειστε Call</a>
+                    <a href="https://calendly.com/liberators-ai/30min" style="display: inline-block; background-color: #007BFF; color: #FFFFFF; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 32px; border-radius: 4px;">Κλειστε Call</a>
                   </td>
                 </tr>
               </table>
@@ -214,7 +214,7 @@ export function generateHtmlReport(result: AnalysisResult): string {
                     <p style="font-family: Arial, sans-serif; font-size: 12px; color: #999999; margin: 0;">Your Business, Automated with AI</p>
                   </td>
                   <td style="text-align: right;">
-                    <a href="mailto:hello@liberators.ai" style="font-family: Arial, sans-serif; font-size: 12px; color: #D97757; text-decoration: none;">hello@liberators.ai</a>
+                    <a href="mailto:hello@liberators.ai" style="font-family: Arial, sans-serif; font-size: 12px; color: #007BFF; text-decoration: none;">hello@liberators.ai</a>
                   </td>
                 </tr>
               </table>

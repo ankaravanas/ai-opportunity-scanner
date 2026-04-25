@@ -112,20 +112,20 @@ export default function OpportunityMatrix({ opportunities }: OpportunityMatrixPr
                   {/* Quadrant backgrounds */}
                   <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 rounded-xl overflow-hidden">
                     {/* Top-left: High Impact, Low Effort = Quick Wins */}
-                    <div className="bg-[#FEF3F0] flex items-center justify-center">
-                      <span className="text-lg md:text-xl text-primary font-bold">Quick Wins</span>
+                    <div className="bg-[#E6F2FF] relative">
+                      <span className="absolute top-3 left-3 text-xs md:text-sm text-primary font-bold uppercase tracking-wide">Quick Wins</span>
                     </div>
                     {/* Top-right: High Impact, High Effort = Strategic */}
-                    <div className="bg-[#F8F8FC] flex items-center justify-center">
-                      <span className="text-lg md:text-xl text-text-secondary font-semibold">Strategic</span>
+                    <div className="bg-[#F8F8FC] relative">
+                      <span className="absolute top-3 right-3 text-xs md:text-sm text-text-secondary font-semibold uppercase tracking-wide">Strategic</span>
                     </div>
                     {/* Bottom-left: Low Impact, Low Effort = Easy Wins */}
-                    <div className="bg-[#F5F5F5] flex items-center justify-center">
-                      <span className="text-lg md:text-xl text-text-muted font-semibold">Easy Wins</span>
+                    <div className="bg-[#F5F5F5] relative">
+                      <span className="absolute bottom-3 left-3 text-xs md:text-sm text-text-muted font-semibold uppercase tracking-wide">Easy Wins</span>
                     </div>
                     {/* Bottom-right: Low Impact, High Effort = Low Priority */}
-                    <div className="bg-[#FAFAFA] flex items-center justify-center">
-                      <span className="text-lg md:text-xl text-text-muted font-semibold">Low Priority</span>
+                    <div className="bg-[#FAFAFA] relative">
+                      <span className="absolute bottom-3 right-3 text-xs md:text-sm text-text-muted font-semibold uppercase tracking-wide">Low Priority</span>
                     </div>
                   </div>
 
@@ -202,7 +202,7 @@ export default function OpportunityMatrix({ opportunities }: OpportunityMatrixPr
               <div
                 key={index}
                 className={`flex items-center gap-4 p-5 rounded-xl border-2 ${
-                  isHighPriority ? 'bg-[#FEF3F0] border-primary/40' : 'bg-white border-border-light'
+                  isHighPriority ? 'bg-[#E6F2FF] border-primary/40' : 'bg-white border-border-light'
                 }`}
               >
                 <div

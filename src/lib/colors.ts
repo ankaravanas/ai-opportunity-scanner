@@ -10,12 +10,12 @@ export const departmentColors: Record<Department, { bg: string; text: string }> 
 };
 
 export const departmentColorsHex: Record<Department, { bg: string; text: string }> = {
-  Sales: { bg: '#E6F1FB', text: '#0C447C' },
-  Operations: { bg: '#EEEDFE', text: '#3C3489' },
-  HR: { bg: '#E1F5EE', text: '#085041' },
-  'Customer Service': { bg: '#EAF3DE', text: '#27500A' },
-  Finance: { bg: '#FAEEDA', text: '#633806' },
-  Marketing: { bg: '#FAECE7', text: '#712B13' },
+  Sales: { bg: '#E6F2FF', text: '#0055CC' },
+  Operations: { bg: '#EEF0FF', text: '#4040CC' },
+  HR: { bg: '#E6F5F0', text: '#008060' },
+  'Customer Service': { bg: '#E8F5E6', text: '#2D8020' },
+  Finance: { bg: '#FFF8E6', text: '#CC8800' },
+  Marketing: { bg: '#FFE6F0', text: '#CC2266' },
 };
 
 export function getDepartmentClasses(department: Department): string {
