@@ -1,6 +1,6 @@
 /**
  * ClickUp API service for lead capture
- * Target: AI Labs workspace → Outbound Sales → 🔥 Leads
+ * Target: AI Labs workspace → Internal (CRM & Access) → CRM
  */
 
 export interface LeadData {
@@ -43,7 +43,7 @@ export async function captureClickUpLead(data: LeadData): Promise<void> {
     const taskData = {
       name: data.companyName,
       description,
-      status: 'to do',  // Default open status for this list
+      status: 'lead',  // CRM list status
     };
 
     const response = await fetch(
