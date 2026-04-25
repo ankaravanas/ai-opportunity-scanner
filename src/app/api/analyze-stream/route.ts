@@ -75,6 +75,8 @@ export async function POST(request: NextRequest) {
           websiteUrl: normalizedUrl,
           emails: scrapeResult.emails,
           phones: scrapeResult.phones,
+          businessSummary: analysisResult.raw_summary,
+          opportunities: analysisResult.opportunities.map(o => o.title),
         }).catch(() => {});
         send({ step: 3, status: 'complete', message: 'Lead saved' });
 

@@ -8,7 +8,6 @@ const CRM_FIELDS = {
   website: 'ab66a021-fe3e-40b5-9a17-104164bd7020',      // 🌐 Website (url)
   email: '8312ad71-dcb1-4e69-8559-3362c2c01665',        // 📥 Contact Email (email)
   phone: 'dcb4bf64-de78-443a-8057-be0daa0b56e1',        // 📱 Phone Number (phone)
-  extraBrief: 'bcc25936-cc6f-4ebb-b38f-bbeaabcf3fd1',   // 📕 Extra Brief (text)
 };
 
 export interface LeadData {
@@ -17,6 +16,23 @@ export interface LeadData {
   websiteUrl: string;
   emails?: string[];
   phones?: string[];
+  businessSummary?: string;
+  opportunities?: string[];
+}
+
+/**
+ * Validate email format strictly
+ */
+function isValidEmail(email: string): boolean {
+  if (!email || email.length < 6 || email.length > 60) return false;
+  const lower = email.toLowerCase();
+  // Must match proper email format
+  if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email)) return false;
+  // Skip example/placeholder emails
+  if (lower.includes('example') || lower.includes('test') || lower.includes('your')) return false;
+  // Skip image filenames
+  if (lower.includes('.png') || lower.includes('.jpg') || lower.includes('.svg')) return false;
+  return true;
 }
 
 /**
@@ -34,8 +50,33 @@ export async function captureClickUpLead(data: LeadData): Promise<void> {
   try {
     const now = new Date().toLocaleString('el-GR', { timeZone: 'Europe/Athens' });
 
-    // Clean description - just the essentials
-    const description = `Lead από AI Opportunity Scanner\nΗμερομηνία: ${now}\nIndustry: ${data.industry}`;
+    // Build rich description
+    const descriptionParts: string[] = [
+      `📅 ${now}`,
+      `🏢 Sector: ${data.industry}`,
+      '',
+    ];
+
+    // Add business summary if available
+    if (data.businessSummary) {
+      descriptionParts.push('📝 Περιγραφή:');
+      descriptionParts.push(data.businessSummary);
+      descriptionParts.push('');
+    }
+
+    // Add opportunities if available
+    if (data.opportunities?.length) {
+      descriptionParts.push('💡 AI Opportunities:');
+      data.opportunities.forEach((opp, i) => {
+        descriptionParts.push(`${i + 1}. ${opp}`);
+      });
+      descriptionParts.push('');
+    }
+
+    descriptionParts.push('---');
+    descriptionParts.push('Lead από AI Opportunity Scanner');
+
+    const description = descriptionParts.join('\n');
 
     // Build custom fields array
     const customFields: Array<{ id: string; value: string }> = [];
@@ -46,34 +87,20 @@ export async function captureClickUpLead(data: LeadData): Promise<void> {
       value: data.websiteUrl,
     });
 
-    // Email field (first email if available)
-    if (data.emails?.length) {
+    // Email field (first VALID email only)
+    const validEmail = data.emails?.find(e => isValidEmail(e));
+    if (validEmail) {
       customFields.push({
         id: CRM_FIELDS.email,
-        value: data.emails[0],
+        value: validEmail,
       });
     }
 
     // Phone field (first phone if available)
-    if (data.phones?.length) {
+    if (data.phones?.length && data.phones[0]) {
       customFields.push({
         id: CRM_FIELDS.phone,
         value: data.phones[0],
-      });
-    }
-
-    // Extra brief with all contact info
-    const briefParts: string[] = [];
-    if (data.emails?.length) {
-      briefParts.push(`Emails: ${data.emails.join(', ')}`);
-    }
-    if (data.phones?.length) {
-      briefParts.push(`Phones: ${data.phones.join(', ')}`);
-    }
-    if (briefParts.length > 0) {
-      customFields.push({
-        id: CRM_FIELDS.extraBrief,
-        value: briefParts.join('\n'),
       });
     }
 

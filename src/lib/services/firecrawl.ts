@@ -57,10 +57,24 @@ export async function scrapeWebsite(url: string): Promise<FirecrawlResult> {
     const metadata = crawlData.metadata || {};
     const title = metadata.title || crawlData.title || '';
 
-    // Extract emails from content
+    // Extract emails from content with strict validation
     const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}\b/g;
     const matchedEmails: string[] = markdown.match(emailPattern) || [];
-    const emails: string[] = Array.from(new Set(matchedEmails));
+
+    // Filter out invalid/fake emails
+    const validEmails = matchedEmails.filter(email => {
+      const lower = email.toLowerCase();
+      // Must have valid TLD
+      if (!/\.(com|gr|net|org|eu|io|co|info|biz)$/i.test(email)) return false;
+      // Skip example/placeholder emails
+      if (lower.includes('example') || lower.includes('test') || lower.includes('your')) return false;
+      // Skip image filenames that look like emails
+      if (lower.includes('.png') || lower.includes('.jpg') || lower.includes('.svg')) return false;
+      // Must have reasonable length
+      if (email.length < 6 || email.length > 60) return false;
+      return true;
+    });
+    const emails: string[] = Array.from(new Set(validEmails));
 
     // Extract phone numbers (Greek and international formats)
     const phonePattern = /(?:\+30|0030)?[\s.-]?(?:2\d{2}|69\d)[\s.-]?\d{3}[\s.-]?\d{4}|\+\d{1,3}[\s.-]?\d{2,4}[\s.-]?\d{3,4}[\s.-]?\d{3,4}/g;
