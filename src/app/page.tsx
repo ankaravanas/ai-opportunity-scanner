@@ -30,7 +30,11 @@ export default function Home() {
   };
 
   const handleSendReport = async (email: string) => {
-    const response = await sendReport(email);
+    if (!analysisResult) {
+      throw new Error('Δεν υπάρχουν δεδομένα ανάλυσης');
+    }
+
+    const response = await sendReport(email, analysisResult);
 
     if (response.success) {
       setIsEmailSent(true);

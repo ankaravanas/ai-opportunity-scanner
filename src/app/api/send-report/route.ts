@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendEmailReport } from '@/lib/services/email';
+import { sendEmailReport, generateHtmlReport } from '@/lib/services/email';
+import { AnalysisResult } from '@/lib/types';
 
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -9,7 +10,7 @@ function isValidEmail(email: string): boolean {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email } = body;
+    const { email, analysisData } = body as { email: string; analysisData?: AnalysisResult };
 
     if (!email || typeof email !== 'string') {
       return NextResponse.json(
@@ -27,9 +28,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate report from passed data
+    if (!analysisData) {
+      return NextResponse.json(
+        { success: false, error: 'Analysis data is required' },
+        { status: 400 }
+      );
+    }
+
+    const htmlReport = generateHtmlReport(analysisData);
+
     console.log(`[SendReport] Sending to: ${trimmedEmail}`);
 
-    const result = await sendEmailReport(trimmedEmail);
+    const result = await sendEmailReport(trimmedEmail, htmlReport, analysisData.company);
 
     if (result.success) {
       console.log(`[SendReport] Sent successfully`);

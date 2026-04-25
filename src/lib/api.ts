@@ -1,4 +1,4 @@
-import { AnalyzeResponse, SendReportResponse } from './types';
+import { AnalyzeResponse, SendReportResponse, AnalysisResult } from './types';
 
 export async function analyzeWebsite(url: string): Promise<AnalyzeResponse> {
   try {
@@ -28,14 +28,14 @@ export async function analyzeWebsite(url: string): Promise<AnalyzeResponse> {
   }
 }
 
-export async function sendReport(email: string): Promise<SendReportResponse> {
+export async function sendReport(email: string, analysisData: AnalysisResult): Promise<SendReportResponse> {
   try {
     const response = await fetch('/api/send-report', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, analysisData }),
     });
 
     const data = await response.json();
