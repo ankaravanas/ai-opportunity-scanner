@@ -95,9 +95,16 @@ async function analyzeWithGPT(
   businessInfo: BusinessInfo,
   language: string
 ): Promise<AnalysisData> {
+  // Force Greek for Greek content, otherwise match detected language
+  const responseLanguage = language.toLowerCase().includes('greek') ? 'Greek' : language;
+
   const prompt = `You are an expert AI automation consultant. Analyze this business and identify exactly 3 specific AI automation opportunities.
 
-IMPORTANT: The website content is in ${language}. Please respond in the SAME LANGUAGE as the website content.
+LANGUAGE REQUIREMENTS:
+- Respond in ${responseLanguage}
+- Keep technical/AI terms in English (e.g., "AI", "chatbot", "automation", "CRM", "workflow", "pipeline", "lead scoring", "NLP", "machine learning")
+- Mix languages naturally: "Αυτοματοποίηση Lead Generation με AI" is correct
+- Titles should be clear and actionable in ${responseLanguage}
 
 BUSINESS INFORMATION:
 - Company: ${businessInfo.companyName}
@@ -115,15 +122,20 @@ Identify exactly 3 AI automation opportunities that are:
 - Focused on ROI within 6-12 months
 - Specific to their industry and operations
 - Do NOT mention any pricing, costs, or fees
-- Respond in ${language}
+
+IMPORTANT - Description format:
+- Write 3-5 sentences per description explaining the opportunity in detail
+- Be specific about what processes will be automated
+- Explain the benefit clearly
+- Use ${responseLanguage} with English technical terms
 
 Return ONLY valid JSON in this exact format:
 {
     "opportunities": [
         {
             "title": "Specific automation solution name",
-            "description": "Detailed description (2-3 sentences max)",
-            "impact": "Specific business benefits",
+            "description": "Detailed description explaining what will be automated, how it works, and what benefits it brings. Write 3-5 sentences.",
+            "impact": "Specific measurable business benefit (e.g., '30% reduction in response time', '15 hours saved weekly')",
             "implementation": "Implementation approach",
             "roi_estimate": "ROI timeframe",
             "priority": "High/Medium/Low"
