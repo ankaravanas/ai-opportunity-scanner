@@ -8,6 +8,7 @@ export interface FirecrawlResult {
   content?: string;
   title?: string;
   emails?: string[];
+  phones?: string[];
   error?: string;
 }
 
@@ -61,12 +62,18 @@ export async function scrapeWebsite(url: string): Promise<FirecrawlResult> {
     const matchedEmails: string[] = markdown.match(emailPattern) || [];
     const emails: string[] = Array.from(new Set(matchedEmails));
 
+    // Extract phone numbers (Greek and international formats)
+    const phonePattern = /(?:\+30|0030)?[\s.-]?(?:2\d{2}|69\d)[\s.-]?\d{3}[\s.-]?\d{4}|\+\d{1,3}[\s.-]?\d{2,4}[\s.-]?\d{3,4}[\s.-]?\d{3,4}/g;
+    const matchedPhones: string[] = markdown.match(phonePattern) || [];
+    const phones: string[] = Array.from(new Set(matchedPhones.map(p => p.replace(/[\s.-]/g, ''))));
+
     return {
       success: true,
       url,
       content: markdown,
       title,
       emails,
+      phones,
     };
   } catch (error) {
     return {

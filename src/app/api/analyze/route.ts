@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
       industry: analysisResult.industry,
       websiteUrl: normalizedUrl,
       emails: scrapeResult.emails,
+      phones: scrapeResult.phones,
     }).catch(() => {}); // Silently ignore errors
 
     console.log(`[Analyze] Complete: ${analysisResult.company}`);
