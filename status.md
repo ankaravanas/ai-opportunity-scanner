@@ -1,8 +1,8 @@
 # AI Opportunity Scanner - Project Status
 
-**Last Updated:** April 2026
+**Last Updated:** 26 April 2026
 **Domain:** scan.liberators.ai
-**Status:** ✅ Production Ready
+**Status:** 🔧 In Development
 
 ---
 
@@ -133,34 +133,57 @@ SLACK_CHANNEL_ID=...
 
 ## Recent Changes
 
-### UI Redesign (April 2026)
+### Session 26 April 2026
+
+#### UI Improvements
+- Removed Impact Score progress bar from cards (not needed)
+- Added tooltip to "Ετήσια εξοικονόμηση" explaining calculation formula
+- Fixed OpportunityMatrix to full width with proper Impact label positioning
+- Restored full effort labels (Χαμηλή/Μεσαία/Υψηλή instead of Χ/Μ)
+- Changed CTA from Calendly to mailto:hello@liberators.ai
+
+#### Savings Calculation Fixes
+- Fixed formatEuros to show decimals (€7.2K instead of €7K)
+- Prevents sum discrepancy between individual cards and total
+- Increased estimateHoursSaved base values (12-25 hours/week)
+- Updated prompt to encourage 15-20 hours/week estimates
+- More impressive but realistic savings numbers
+
+#### Slack Integration
+- Configured for AI Labs workspace (ai-labs-liberators.slack.com)
+- Channel: #leads (C0AV6PT92AJ)
+- Token: xoxb-9351010763364-... (AI Labs n8n bot)
+- Added domain to notification header
+- Bot invited to #leads channel
+- API test confirms working
+
+#### ClickUp Integration
+- Added source attribution: "AI Opportunity Scanner (scan.liberators.ai)"
+- Returns taskId for Slack notification reference
+
+### Previous Changes
+
+#### UI Redesign
 - Switched from terracotta (#D97757) to Liberators blue (#007BFF)
 - Added serif typography for editorial aesthetic
 - Redesigned cards with numbered badges
-- Impact score changed from dots to progress bar
 - Added fade-in animations
 
-### Data Quality Improvements
+#### Data Quality
 - Strict email validation (filters fake emails, image filenames)
 - Company name extraction using GPT instead of string parsing
 - Business-specific automation suggestions (not generic)
-
-### Integrations Added
-- Slack notifications for new leads (channel: #wedohype-prospects)
-- ClickUp source attribution (AI Opportunity Scanner)
-- Rich lead descriptions with business summary
-
-### Slack Fix (April 2026)
-- Fixed by using correct token for AI Labs workspace (was using WEDOHYPE token)
-- Channel: #leads (C0AV6PT92AJ) in AI Labs workspace
-- Added bot to #leads channel
-- Added detailed logging for debugging
 
 ---
 
 ## Known Issues
 
-None currently.
+### Slack Notifications Not Sending (PENDING)
+- **Status:** Under investigation
+- **Symptom:** Notifications not appearing in #leads despite API test working
+- **Verified:** Token works (curl test sends messages), bot is in channel
+- **Possible cause:** Server may need full restart to load new env variables
+- **Next step:** Monitor server logs during analysis for `[Slack]` output
 
 ---
 
