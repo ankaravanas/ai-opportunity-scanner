@@ -145,24 +145,6 @@ export default function EmailCapture({ onSubmit, isSubmitted }: EmailCaptureProp
           </div>
         </div>
       </div>
-
-      {/* Bottom CTA Strip */}
-      <div className="px-8 md:px-10 py-5 bg-[#FAFAFA] border-t border-[#E5E5E5]">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-sm text-[#888888]">
-            Θέλετε να συζητήσουμε πώς να υλοποιήσετε αυτές τις ευκαιρίες;
-          </p>
-          <a
-            href="mailto:hello@liberators.ai"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
-          >
-            Επικοινωνήστε μαζί μας
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </a>
-        </div>
-      </div>
     </div>
   );
 }
