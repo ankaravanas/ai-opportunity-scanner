@@ -12,10 +12,18 @@ import { AnalysisResult, Opportunity, Department, EffortLevel } from '../types';
 
 const viaOpenRouter = Boolean(process.env.OPENROUTER_API_KEY);
 
-const openai = new OpenAI({
-  apiKey: viaOpenRouter ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY,
-  baseURL: viaOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
-});
+// Built on first use, not at import: `next build` imports this module to collect
+// page data, and there is (rightly) no key in the build environment.
+let client: OpenAI | null = null;
+function ai(): OpenAI {
+  if (!client) {
+    client = new OpenAI({
+      apiKey: viaOpenRouter ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY,
+      baseURL: viaOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
+    });
+  }
+  return client;
+}
 
 const MODEL_FAST = process.env.AI_MODEL_FAST || (viaOpenRouter ? 'google/gemini-2.5-flash-lite' : 'gpt-4o-mini');
 const MODEL_MAIN = process.env.AI_MODEL_MAIN || (viaOpenRouter ? 'google/gemini-2.5-flash-lite' : 'gpt-4o');
@@ -50,7 +58,7 @@ async function extractCompanyName(title: string, content: string): Promise<strin
   if (!title && !content) return 'Unknown Company';
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await ai().chat.completions.create({
       model: MODEL_FAST,
       messages: [
         {
@@ -100,7 +108,7 @@ Company name:`,
  */
 async function detectLanguage(content: string): Promise<string> {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await ai().chat.completions.create({
       model: MODEL_FAST,
       messages: [
         {
@@ -123,7 +131,7 @@ async function detectLanguage(content: string): Promise<string> {
  */
 async function detectIndustry(content: string, companyName: string): Promise<string> {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await ai().chat.completions.create({
       model: MODEL_FAST,
       messages: [
         {
@@ -218,7 +226,7 @@ RETURN ONLY VALID JSON:
     "recommended_next_steps": "Next steps"
 }`;
 
-  const response = await openai.chat.completions.create({
+  const response = await ai().chat.completions.create({
     model: MODEL_MAIN,
     messages: [
       {
