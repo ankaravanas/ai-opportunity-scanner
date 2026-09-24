@@ -1,7 +1,9 @@
 /**
- * Gmail API service for sending reports
+ * Gmail service for sending reports: SMTP with the hello@ app password when it
+ * is set, the Gmail API with OAuth2 otherwise.
  */
 
+import nodemailer from 'nodemailer';
 import { AnalysisResult } from '../types';
 
 interface EmailResult {
@@ -276,6 +278,25 @@ export async function sendEmailReport(
 
   if (!report) {
     return { success: false, error: 'No report available. Run analysis first.' };
+  }
+
+  // SMTP with the hello@ app password, the same sender the AI Awakening pages
+  // use. On the Hetzner box (24/9/2026) the OAuth2 credentials below are not set.
+  const smtpUser = process.env.HELLO_LIBERATORS_GMAIL_USER;
+  const smtpPass = process.env.HELLO_LIBERATORS_GMAIL_APP_PASSWORD;
+  if (smtpUser && smtpPass) {
+    try {
+      const transport = nodemailer.createTransport({ service: 'gmail', auth: { user: smtpUser, pass: smtpPass } });
+      const info = await transport.sendMail({
+        from: `Liberators AI <${smtpUser}>`,
+        to: recipientEmail,
+        subject: `AI Automation Opportunities Report - ${company}`,
+        html: report,
+      });
+      return { success: true, messageId: info.messageId };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'SMTP send failed' };
+    }
   }
 
   const gmailUser = process.env.GMAIL_USER;

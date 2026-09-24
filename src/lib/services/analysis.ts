@@ -1,13 +1,24 @@
 /**
- * OpenAI GPT-4o analysis service
+ * AI analysis service.
+ *
+ * Runs through OpenRouter when OPENROUTER_API_KEY is set, with one cheap, fast
+ * model for every call (Andreas, 24/9/2026: the OpenAI key had been revoked and
+ * every scan failed with a 401). Without it, straight to OpenAI as before.
+ * AI_MODEL_FAST / AI_MODEL_MAIN override the models.
  */
 
 import OpenAI from 'openai';
 import { AnalysisResult, Opportunity, Department, EffortLevel } from '../types';
 
+const viaOpenRouter = Boolean(process.env.OPENROUTER_API_KEY);
+
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: viaOpenRouter ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY,
+  baseURL: viaOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
 });
+
+const MODEL_FAST = process.env.AI_MODEL_FAST || (viaOpenRouter ? 'google/gemini-2.5-flash-lite' : 'gpt-4o-mini');
+const MODEL_MAIN = process.env.AI_MODEL_MAIN || (viaOpenRouter ? 'google/gemini-2.5-flash-lite' : 'gpt-4o');
 
 export interface BusinessInfo {
   companyName: string;
@@ -40,7 +51,7 @@ async function extractCompanyName(title: string, content: string): Promise<strin
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: MODEL_FAST,
       messages: [
         {
           role: 'user',
@@ -90,7 +101,7 @@ Company name:`,
 async function detectLanguage(content: string): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: MODEL_FAST,
       messages: [
         {
           role: 'user',
@@ -113,7 +124,7 @@ async function detectLanguage(content: string): Promise<string> {
 async function detectIndustry(content: string, companyName: string): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: MODEL_FAST,
       messages: [
         {
           role: 'user',
@@ -208,7 +219,7 @@ RETURN ONLY VALID JSON:
 }`;
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: MODEL_MAIN,
     messages: [
       {
         role: 'system',
